@@ -1,0 +1,37 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/cart/cart",
+    "pages/center/center",
+    "pages/logs/logs"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarTitleText": "零食铺",
+    "navigationBarTextStyle": "black",
+    "navigationBarBackgroundColor": "#ffffff",
+    "backgroundColor": "#eeeeee"
+  },
+  "tabBar": {
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath":"/images/tabbar/icon1.png",
+        "selectedIconPath":"images/tabbar/icon1s.png"
+      },
+      {
+        "pagePath": "pages/cart/cart",
+        "text": "购物车",
+        "iconPath": "/images/tabbar/icon2.png",
+        "selectedIconPath": "images/tabbar/icon2s.png"
+      },
+        {
+          "pagePath": "pages/center/center",
+          "text": "我的",
+          "iconPath": "/images/tabbar/icon1.png",
+          "selectedIconPath": "images/tabbar/icon1s.png"
+        }
+    ]
+  }
+}

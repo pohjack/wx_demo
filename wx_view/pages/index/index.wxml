@@ -1,0 +1,30 @@
+<view class="mainContainer">
+  <!-- 顶部定位、搜索框 -->
+  <view class="top">
+    <view class="location">
+      <image src='/images/top/location_00.png' mode="aspectFit"></image>
+      <text>大石街道</text>
+    </view>
+    <view class="search">
+      <image src="/images/top/search_00.png" mode="aspectFit"></image>
+      <input type="text" placeholder="输入商品名称"></input>
+    </view>
+  </view>
+
+  <!-- 中部分类 -->
+  <view class="classify">
+    <view wx:for="{{classifyInfo}}" class="classify_item">
+      <image src="{{item.img}}" style="background-color:{{item.backgroundColor}}"></image>
+      <text>{{item.name}}</text>
+    </view>
+  </view>
+
+  <!--分割块  -->
+  <view class="slipt"></view>
+
+  <!-- 中部过滤、筛选条件 -->
+  <view class="filter"></view>
+
+  <!--底部商品展示 -->
+  <view class="content"></view>
+</view>
