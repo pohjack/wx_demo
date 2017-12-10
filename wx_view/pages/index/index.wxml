@@ -23,8 +23,20 @@
   <view class="slipt"></view>
 
   <!-- 中部过滤、筛选条件 -->
-  <view class="filter"></view>
+  <view class="filter">
+    <view class="filter_header">
+      <text>热卖商品</text>
+    </view>
+    <view class="filter_item">
+    <text>综合排序</text>
+    <text>销量最高</text>
+    <text class="border_left">距离最近</text>
+    <text>筛选</text>
+    </view>
+  </view>
 
   <!--底部商品展示 -->
-  <view class="content"></view>
+  <view class="content">
+    
+  </view>
 </view>

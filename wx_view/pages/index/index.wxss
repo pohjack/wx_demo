@@ -2,11 +2,12 @@
   width: 710rpx;
   margin: 0;
   padding: 0;
+  font-size: 30rpx;
 }
 
 /*开发阶段，增加边框，便于显示  */
 
- /* view {
+/* view {
   border-style: solid;
 }  */
 
@@ -15,6 +16,7 @@
   flex-direction: row;
   height: 60rpx;
   padding: 0rpx 20rpx 10rpx 20rpx;
+  font-size: 30rpx;
 }
 
 .top view {
@@ -25,21 +27,26 @@
 .top image {
   width: 45rpx;
   height: 45rpx;
+  padding: 0rpx 10rpx 0rpx 10rpx;
 }
 
 .top .location {
   width: 300rpx;
+  display: flex;
+  flex-direction: row;
   border-color: lightgray;
+  border-width: 2rpx;
   background-color: grey;
-  justify-content: center;
   align-items: center;
   margin-right: 5rpx;
 }
 
 .top .search {
+  background-color: lightgray;
   margin-left: 5rpx;
   width: 450rpx;
   border-color: lightgray;
+  border-width: 2rpx;
   display: flex;
   flex-direction: row;
 }
@@ -59,12 +66,13 @@
   justify-content: center;
   text-align: center;
   margin: 20rpx 10rpx 10rpx 10rpx;
+  font-size: 30rpx;
 }
 
 .classify image {
-  width: 120rpx;
-  height: 120rpx;
-  border-radius: 120rpx;
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 100rpx;
   align-self: center;
 }
 
@@ -72,4 +80,46 @@
   width: 100%;
   height: 20rpx;
   background-color: lightgrey;
+}
+
+.filter {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.filter_header {
+  width: 45%;
+  border-bottom:2rpx solid black;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  align-self: center;
+}
+
+.filter_header text {
+  width: 60%;
+  background-color: white;
+  font-size: 40rpx;
+  position: relative;
+  top: 25rpx;
+  align-self: center;
+}
+
+.filter_item {
+  display: flex;
+  flex-direction: row;
+  margin-top: 40rpx;
+  border-top: 2rpx solid lightgray;
+  border-bottom: 2rpx solid lightgray;
+  padding: 5rpx 5rpx 5rpx 5rpx;
+}
+.filter_item text {
+  width: 25%;
+  font-size: 35rpx;
+  text-align: center;
+  margin: 15rpx 0rpx 15rpx 0rpx;
+}
+.border_left {
+  border-right: 2rpx solid lightgray;
 }
