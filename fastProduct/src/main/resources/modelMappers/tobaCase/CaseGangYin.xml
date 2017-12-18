@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.frame.tobaCase.entity.CaseGangYin">
+	<resultMap id="BaseResultMap" type="com.frame.tobaCase.entity.CaseGangYin">
+		<id column="id" property="id" />
+		<result column="case_id" property="caseId" />
+		<result column="cigar_id" property="cigarId" />
+		<result column="customerCode" property="customerCode" />
+		<result column="name" property="name" />
+		<result column="company" property="company" />
+		<result column="number" property="number" />
+	</resultMap>
+	<!-- 表名 -->
+	<sql id="tableNameSql">
+		b_case_gangYin
+	</sql>
+	<sql id="Base_Column_List">
+		id,case_id,cigar_id,customerCode,name,company,number
+	</sql>
+
+	<select id="findByCaseId" parameterType="String" resultMap="BaseResultMap">
+		SELECT <include refid="Base_Column_List" /> FROM <include refid="tableNameSql" />
+		WHERE case_id = #{id} 
+		ORDER BY name DESC
+	</select>
+	<select id="findByCaseIdAndCigarId" parameterType="String" resultMap="BaseResultMap">
+		SELECT <include refid="Base_Column_List" /> FROM <include refid="tableNameSql" />
+		WHERE case_id = #{caseId} AND cigar_id = #{cigarId}
+		
+	</select>
+	
+	<!-- 新增 -->
+	<insert id="save" parameterType="com.frame.tobaCase.entity.CaseGangYin">
+		INSERT INTO
+			<include refid="tableNameSql" />
+		(<include refid="Base_Column_List" />)
+		VALUES (
+			#{id},
+			#{caseId},
+			#{cigarId},
+			#{customerCode},
+			#{name},
+			#{company},
+			#{number}
+		)
+	</insert>
+	<insert id="saveAll" parameterType="com.frame.tobaCase.entity.CaseGangYin">
+		INSERT INTO
+			<include refid="tableNameSql" />
+		(<include refid="Base_Column_List" />)
+		VALUES  
+		<foreach collection="list" item = "caseGangYin" separator=",">
+			(#{caseGangYin.id}, #{caseGangYin.caseId}, #{caseGangYin.cigarId}, #{caseGangYin.customerCode},#{caseGangYin.name}, #{caseGangYin.company}, #{caseGangYin.number})
+		 </foreach>
+	</insert>
+	<!-- 修改 -->
+	<update id="update" parameterType="com.frame.tobaCase.entity.CaseGangYin">
+		UPDATE
+			<include refid="tableNameSql" />
+		SET
+			customerCode=#{customerCode},
+			name = #{name},
+			company=#{company},
+			number = #{number}
+		WHERE
+			id = #{id}
+	</update>
+	<!-- 删除 -->
+	<delete id="removeByIds" parameterType="String">
+		DELETE FROM
+			<include refid="tableNameSql" />
+		WHERE
+			id IN
+		<foreach collection="ids" item = "ids" open="(" separator="," close=")">#{ ids}</foreach> 	
+	</delete>
+	<select id="findById" parameterType="String" resultMap="BaseResultMap">
+		SELECT 
+			<include refid="Base_Column_List" /> 
+		FROM
+			<include refid="tableNameSql" />
+		WHERE
+			id = #{id}
+	</select>
+	
+	<select id="findEachCigarTotal" parameterType="String"  resultType="int">
+		SELECT count(a.id) FROM
+			<include refid="tableNameSql" /> a
+		WHERE case_id = #{caseId} AND cigar_id = #{cigarId}
+	</select>
+	
+	
+	<select id="findCigarIds" parameterType="String"  resultType="String">
+		SELECT DISTINCT(cigar_id) FROM
+			<include refid="tableNameSql" /> 
+		WHERE case_id = #{caseId} 
+	</select>
+	
+	<delete id="removeByCaseIdCigarId" parameterType="String">
+		DELETE FROM
+			<include refid="tableNameSql" />
+		WHERE case_id = #{caseId} AND cigar_id = #{cigarId}
+	</delete>
+	
+	
+</mapper>

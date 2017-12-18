@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.frame.tobaCase.entity.DictionaryData">
+	<resultMap id="BaseResultMap" type="com.frame.tobaCase.entity.DictionaryData">
+		<id column="id" property="id" />
+		<result column="name" property="name" />
+		<result column="code" property="code" />
+		<result column="value" property="value" />
+		<result column="category" property="category" />
+		<result column="description" property="description" />
+		<result column="sort" property="sort" />
+		<result column="status" property="status" />
+		<result column="creator" property="creator" />
+		<result column="created" property="created" />
+		<result column="updator" property="updator" />
+		<result column="updated" property="updated" />
+		<result column="remove_statue" property="removeStatue" />
+	</resultMap>
+	<!-- 表名 -->
+	<sql id="tableNameSql">
+		s_dict_data
+	</sql>
+	<sql id="Base_Column_List">
+		id,name,code,value,category,description,sort,status,creator,created,updator,updated,remove_statue
+	</sql>
+
+	<select id="findByCode" parameterType="string" resultMap="BaseResultMap">
+		SELECT <include refid="Base_Column_List" />
+		FROM <include refid="tableNameSql" />
+		WHERE code = #{code}
+	</select>
+	
+	<sql id="condition">  <!-- 公共条件 -->
+		WHERE remove_statue=0
+		<if test="condition.name != null and condition.name != ''"> AND name LIKE CONCAT(CONCAT('%', #{condition.name}),'%')</if>
+		<if test="condition.category != null and condition.category != 0"> AND category = #{condition.category}-1</if>
+		<if test="condition.search != null and  condition.search !='' "> 
+			AND name LIKE '%${condition.search}%' OR
+			value LIKE '%${condition.search}%'
+		</if> 
+	</sql>
+	<select id="findByPage" resultType="hashMap" parameterType="com.frame.core.commons.result.DateTablesResult">
+		SELECT <include refid="Base_Column_List" /> FROM 
+		<include refid="tableNameSql" /> 
+		<include refid="condition" />
+		GROUP BY id 
+		<if test="condition.iSortCol_0==1">
+			ORDER BY name ${condition.sSortDir_0}
+		</if>
+		<if test="condition.iSortCol_0==2">
+			ORDER BY updated DESC ,code ${condition.sSortDir_0}					 
+		</if>
+		<if test="condition.iSortCol_0==3">
+			ORDER BY value ${condition.sSortDir_0}
+		</if>
+		<if test="condition.iSortCol_0==4">
+			ORDER BY category ${condition.sSortDir_0}
+		</if>
+		<if test="condition.iSortCol_0==5">
+			ORDER BY description ${condition.sSortDir_0}
+		</if>
+	  	LIMIT ${start},${length} 
+	</select>
+	<select id="findAllTotal" parameterType="com.frame.core.commons.result.DateTablesResult" resultType="int">
+	    SELECT count(id) FROM 
+	    <include refid="tableNameSql" /> 
+		<include refid="condition" />
+	</select>
+	
+	<select id="findById" parameterType="String" resultMap="BaseResultMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM
+		<include refid="tableNameSql" />
+		WHERE id=#{id}
+	</select>
+	
+	<!-- 新增数据 -->
+	<insert id="save" parameterType="com.frame.tobaCase.entity.DictionaryData">
+		INSERT INTO 
+			<include refid="tableNameSql" /> 
+		(
+			<include refid="Base_Column_List" />
+		)
+		VALUES
+		(
+			#{id}, #{name}, #{code}, #{value}, #{category}, #{description}, #{sort}, #{status}, 
+			#{creator}, #{created},#{updator}, #{updated}, #{removeStatue}
+		)
+	</insert>
+	<!-- 修改 -->
+	<update id="update" parameterType="com.frame.tobaCase.entity.DictionaryData">
+		UPDATE 
+			<include refid="tableNameSql" /> 
+		SET
+			name = #{name}, 
+			code = #{code}, 
+			value = #{value}, 
+			category = #{category}, 
+			description = #{description}, 
+			sort = #{sort}, 
+			status = #{status}, 
+			creator = #{creator}, 
+			created = #{created},
+			updator = #{updator}, 
+			updated = #{updated}
+		WHERE
+			id = #{id}
+	</update>
+	<!-- 逻辑删除 -->
+	<!-- <update id="removeByIds" parameterType="String">
+		UPDATE 
+			<include refid="tableNameSql" /> 
+		SET
+			remove_statue = 1
+		WHERE
+			id = #{id}
+	</update> -->
+	<!-- 删除 -->
+	<delete id="removeByIds" parameterType="String">
+		UPDATE 
+			<include refid="tableNameSql" /> 
+		SET remove_statue = 1 WHERE id IN
+		<foreach collection="ids" item = "ids" open="(" separator="," close=")">#{ ids}</foreach> 	
+	</delete>
+</mapper>

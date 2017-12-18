@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.frame.sys.entity.LogOperation">
+	<resultMap id="BaseResultMap" type="com.frame.sys.entity.LogOperation">
+		<id column="id" property="id" />
+		<result column="log_type" property="type" />
+		<result column="operator" property="creator" />
+		<result column="created" property="created" />
+		<result column="operation_object" property="objOperation" />
+		<result column="operation_table" property="objName" />
+		<result column="operation_data_id" property="objKey" />
+		<result column="old_value" property="oldValue" />
+		<result column="new_value" property="newValue" />
+		<result column="operation_url" property="operationUrl" />
+	</resultMap>
+	<parameterMap type="com.frame.sys.entity.LogOperation" id="BaseParameterMap">
+		<parameter property="id" />
+		<parameter property="type" />
+		<parameter property="creator" />
+		<parameter property="created" />
+		<parameter property="objOperation" />
+		<parameter property="objName" />
+		<parameter property="objKey" />
+		<parameter property="oldValue" />
+		<parameter property="newValue" />
+	</parameterMap>
+	<!-- 表名 -->
+	<sql id="tableNameSql">
+		log_operation
+	</sql>
+	<sql id="Base_Column_List">
+		id,log_type,operation_url,operation_table,operation_data_id,operation_object,old_value,new_value,operator,created
+	</sql>
+	<select id="findByPage" resultType="Map" parameterType="com.frame.core.commons.result.DateTablesResult">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM
+		<include refid="tableNameSql" /> AS a WHERE 1=1 
+			<if test="condition.loginNameSearch !=null and  condition.loginNameSearch !='' ">
+			AND	log_type LIKE CONCAT(CONCAT('%', #{condition.loginNameSearch}),'%')
+		</if> 		
+		<if test="condition.startTime!=null and condition.startTime!=''"><!-- 起始时间 -->
+			AND created &gt;= #{condition.startTime} 
+		</if>
+		<if test="condition.endTime!=null and condition.endTime!=''"><!-- 结束时间 -->
+			AND created &lt;= #{condition.endTime} 
+		</if>
+	  ORDER BY created DESC LIMIT ${start},${length} 
+	</select>
+	<select id="findAllTotal" parameterType="com.frame.core.commons.result.DateTablesResult" resultType="int">
+	    SELECT count(id) FROM <include refid="tableNameSql" /> 
+	    <if test="condition.loginNameSearch !=null and  condition.loginNameSearch !='' ">
+			AND	log_type LIKE CONCAT(CONCAT('%', #{condition.loginNameSearch}),'%')
+		</if> 		
+		<if test="condition.startTime!=null and condition.startTime!=''"><!-- 起始时间 -->
+			AND created &gt;= #{condition.startTime} 
+		</if>
+		<if test="condition.endTime!=null and condition.endTime!=''"><!-- 结束时间 -->
+			AND created &lt;= #{condition.endTime} 
+		</if>
+	</select>
+
+	<insert id="save" parameterMap="BaseParameterMap">
+		INSERT INTO
+		<include refid="tableNameSql" />
+		(
+		<include refid="Base_Column_List" />
+		)
+		VALUES
+		(#{id},#{type},#{operationUrl},#{objName},#{objKey},#{objOperation},#{oldValue},#{newValue},#{creator},#{created});
+	</insert>
+
+	<delete id="delete" parameterType="String">
+		DELETE FROM
+		<include refid="tableNameSql" />
+		WHERE id=#{id}
+	</delete>
+	<update id="update" parameterType="com.frame.sys.entity.LogOperation">
+		UPDATE <include refid="tableNameSql" /> 
+		SET 
+		log_type=#{type}, 
+		operation_url=#{operationUrl},
+		operator=#{creator}, 
+		created=#{created}, 
+		operation_object=#{objOperation}, 
+		operation_table=#{objName}, 
+		operation_data_id=#{objKey}, 
+		old_value=#{oldValue}, 
+		new_value=#{newValue}
+		WHERE id=#{id}
+	</update>
+	<update id="updateNewVal" parameterType="com.frame.sys.entity.LogOperation">
+		UPDATE <include refid="tableNameSql" /> 
+		SET 
+		new_value=#{newValue},
+		operator=#{creator}
+		WHERE id=#{id}
+	</update>
+	<select id="findById" resultMap="BaseResultMap"
+		parameterType="java.lang.String">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM
+		<include refid="tableNameSql" />
+		WHERE id=#{id}
+	</select>
+	<select id="findObjectById"  resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		SELECT * FROM ${tbName} WHERE id=#{id}
+	</select>
+</mapper>

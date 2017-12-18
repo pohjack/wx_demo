@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.frame.sys.entity.LogException">
+	<resultMap id="BaseResultMap" type="com.frame.sys.entity.LogException">
+		<id column="id" property="id" />
+		<result column="class_name" property="nameClass" />
+		<result column="method_name" property="nameFunction" />
+		<result column="exception_name" property="nameException" />
+		<result column="model_name" property="nameMethod" />
+		<result column="package_name" property="namePackage" />
+		<result column="exception_mesg" property="exceptionMesg" />
+		<result column="created" property="created" />
+		<result column="exception_row" property="rumException" />
+		<result column="exception_code" property="exceptionCode" />
+	</resultMap>
+	<parameterMap type="com.frame.sys.entity.LogException" id="BaseParameterMap">
+		<parameter property="id" />
+		<parameter property="nameClass" />
+		<parameter property="nameFunction" />
+		<parameter property="nameException" />
+		<parameter property="nameMethod" />
+		<parameter property="created" />
+		<parameter property="rumException" />
+		<parameter property="namePackage" />
+	</parameterMap>
+	<!-- 表名 -->
+	<sql id="tableNameSql">
+		log_exception
+	</sql>
+	<sql id="Base_Column_List">
+		id,class_name,method_name,exception_name,model_name,package_name,exception_mesg,created,exception_row,exception_code
+	</sql>
+	<select id="findByPage" resultType="Map" parameterType="com.frame.core.commons.result.DateTablesResult">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM
+		<include refid="tableNameSql" /> AS a WHERE 1=1 
+		<if test="condition.loginNameSearch !=null and  condition.loginNameSearch !='' ">
+			AND	( exception_name LIKE CONCAT(CONCAT('%', #{condition.loginNameSearch}),'%')
+			OR exception_code LIKE CONCAT(CONCAT('%', #{condition.loginNameSearch}),'%')
+			)
+		</if> 		
+		<if test="condition.startTime!=null and condition.startTime!=''"><!-- 起始时间 -->
+			AND created &gt;= #{condition.startTime} 
+		</if>
+		<if test="condition.endTime!=null and condition.endTime!=''"><!-- 结束时间 -->
+			AND created &lt;= #{condition.endTime} 
+		</if>
+	  ORDER BY created DESC limit ${start},${length} 
+	</select>
+	<select id="findAllTotal" parameterType="com.frame.core.commons.result.DateTablesResult" resultType="int">
+	    SELECT count(id) FROM <include refid="tableNameSql" /> AS a WHERE 1=1 
+		<if test="condition.loginNameSearch !=null and  condition.loginNameSearch !='' ">
+			AND	(	exception_name LIKE CONCAT(CONCAT('%', #{condition.loginNameSearch}),'%')
+			OR exception_code LIKE CONCAT(CONCAT('%', #{condition.loginNameSearch}),'%')
+			)
+		</if> 		
+		<if test="condition.startTime!=null and condition.startTime!=''"><!-- 起始时间 -->
+			AND created &gt;= #{condition.startTime} 
+		</if>
+		<if test="condition.endTime!=null and condition.endTime!=''"><!-- 结束时间 -->
+			AND created &lt;= #{condition.endTime} 
+		</if> 
+	</select>
+	<insert id="save" parameterType="com.frame.sys.entity.LogException">
+		INSERT INTO
+		<include refid="tableNameSql" />
+		(
+		<include refid="Base_Column_List" />
+		)
+		VALUES
+		(#{id},#{nameClass},#{nameFunction},#{nameException},#{nameMethod},#{namePackage},#{exceptionMesg},#{created},#{rumException},#{exceptionCode});
+	</insert>
+
+	<delete id="delete" parameterType="String">
+		DELETE FROM
+		<include refid="tableNameSql" />
+		WHERE id=#{id}
+	</delete>
+	<update id="update" parameterType="com.frame.sys.entity.LogException">
+		UPDATE <include refid="tableNameSql" /> 
+		SET 
+		class_name=#{nameClass}, 
+		method_name=#{nameFunction}, 
+		exception_name=#{nameException}, 
+		model_name=#{nameMethod}, 
+		created=#{created}, 
+		exception_row=#{rumException}, 
+		package_name=#{namePackage},
+		exception_mesg=#{exceptionMesg},
+		exception_code=#{exceptionCode}
+		WHERE id=#{id}
+	</update>
+	<select id="findById" resultMap="BaseResultMap" parameterType="java.lang.String">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM
+		<include refid="tableNameSql" />
+		WHERE id=#{id}
+	</select>
+</mapper>

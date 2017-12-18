@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.frame.sys.entity.Organization">
+
+	<!-- 表名 -->
+	<sql id="tableNameSql">
+		s_organization
+	</sql>
+
+	<sql id="Base_Column_List">
+		id,
+		org_code AS orgCode,
+		org_name AS orgName,
+		org_description
+		AS orgDescription,
+		org_address AS orgAddress,
+		org_pid AS orgPid,
+		org_icon AS orgIcon,
+		sort,
+		org_leader AS orgLeader,
+		status,
+		remark
+	</sql>
+
+	<!-- 查询全部部门列表 -->
+	<select id="findTree" resultType="com.frame.core.entity.TreeNode">
+		SELECT
+		id,
+		org_name AS Name,
+		org_pid AS pid,
+		remark,
+		status,
+		sort
+		FROM
+		<include refid="tableNameSql" />
+		WHERE remove_statue=0
+		ORDER BY sort
+	</select>
+
+	<!-- 查询单个部门 -->
+	<select id="findById" parameterType="String"
+		resultType="com.frame.sys.entity.Organization">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM
+		<include refid="tableNameSql" />
+		WHERE
+		id=#{id}
+	</select>
+
+	<!-- 查询子部门 -->
+	<select id="findOrgIdById" parameterType="String" resultType="String">
+		SELECT
+		id
+		FROM
+		<include refid="tableNameSql" />
+		WHERE FIND_IN_SET(org_pid, queryChildrenOrgInfo(#{id}));
+	</select>
+
+	<!-- 修改部门 -->
+	<update id="update" parameterType="com.frame.sys.entity.Organization">
+		UPDATE
+		<include refid="tableNameSql" />
+		SET
+		org_name=#{orgName},
+		org_description=#{orgDescription},
+		org_address=#{orgAddress},
+		org_code=#{orgCode},
+		org_icon=#{orgIcon},
+		org_pid=#{orgPid},
+		creator=#{creator},
+		created=#{created},
+		sort=#{sort},
+		org_leader=#{orgLeader},
+		status=#{status},
+		remove_statue=#{removeStatue},
+		updator=#{updator},
+		updated=#{updated},
+		remark=#{remark}
+		WHERE
+		id=#{id}
+	</update>
+
+	<!-- 删除部门 -->
+	<update id="removeByIds" parameterType="String">
+		UPDATE
+		<include refid="tableNameSql" />
+		SET
+		remove_statue=-1,
+		updator = #{updator},
+		updated = #{updated}
+		WHERE
+		id IN
+		<foreach collection="ids" item="ids" open="(" separator=","
+			close=")">#{ ids}</foreach>
+	</update>
+
+	<!-- 禁用部门 -->
+	<update id="changeState" parameterType="HashMap">
+		UPDATE
+		<include refid="tableNameSql" />
+		SET
+		status=#{status},
+		updator = #{updator},
+		updated = #{updated}
+		WHERE
+		id IN
+		<foreach collection="ids" item="ids" open="(" separator=","
+			close=")">#{ids}</foreach>
+	</update>
+
+
+	<!-- 新增部门 -->
+	<insert id="save" parameterType="com.frame.sys.entity.Organization">
+		INSERT INTO
+		<include refid="tableNameSql" />
+		VALUES
+		(#{id},#{orgCode},#{orgName},#{orgDescription},#{orgAddress},#{orgPid},#{orgIcon},#{orgLeader},#{creator},#{created},#{updator},#{updated},#{sort},#{status},#{removeStatue},#{remark})
+	</insert>
+
+	<!-- 修改上级部门 -->
+	<!-- <update id="updatePid" parameterType="com.frame.sys.entity.Organization"> 
+		UPDATE <include refid="tableNameSql" /> SET org_pid=#{orgPid}, sort=#{sort} 
+		WHERE id=#{id} </update> -->
+
+	<!-- 查询整个部门 -->
+	<select id="findAll" resultType="com.frame.sys.entity.Organization">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM
+		<include refid="tableNameSql" />
+	</select>
+
+</mapper>

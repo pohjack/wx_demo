@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans-4.0.xsd  
+http://www.springframework.org/schema/context 
+http://www.springframework.org/schema/context/spring-context-4.0.xsd  http://www.springframework.org/schema/mvc 
+						   http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd  http://www.springframework.org/schema/aop
+    http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+    http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd">
+
+
+	<!-- 启用CGliB -->
+	<aop:aspectj-autoproxy proxy-target-class="true" />
+	<!-- 自动扫描的包名 ，使Spring支持自动检测组件，如注解的Controller -->
+	<context:component-scan base-package="com.frame.core,com.frame.sys,com.frame.tobaCase,com.frame.appServer" />
+	<mvc:resources location="/statics/" mapping="/statics/**" />
+	<mvc:resources location="/caseEvidence/" mapping="/caseEvidence/**" />
+	<mvc:resources location="/caseInfoFile/" mapping="/caseInfoFile/**" />
+  
+	<!--  <task:executor id="executor" pool-size="5" />
+    <task:scheduler id="scheduler" pool-size="5" />
+    <task:annotation-driven executor="executor" scheduler="scheduler" /> -->
+    <!--  如果定时任务很多，可以配置executor线程池，这里executor的含义和java.util.concurrent.Executor是一样的，pool-size的大小官方推荐为5~10。scheduler的pool-size是ScheduledExecutorService线程池，默认为1。
+    		假如我设置了8个任务，每个任务都是每5秒钟执行一次 -->
+	<bean id="viewResolver"
+		class="org.springframework.web.servlet.view.UrlBasedViewResolver">
+		<property name="viewClass"
+			value="org.springframework.web.servlet.view.JstlView" />
+		<property name="prefix" value="/WEB-INF/view/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+
+	<mvc:annotation-driven>
+		<mvc:message-converters register-defaults="false">
+			<!-- 将StringHttpMessageConverter的默认编码设为UTF-8 -->
+			<bean class="org.springframework.http.converter.StringHttpMessageConverter">
+				<constructor-arg value="UTF-8" />
+			</bean>
+			<ref bean="jacksonMessageConverter" />
+		</mvc:message-converters>
+	</mvc:annotation-driven>
+
+	<bean id="jacksonMessageConverter"
+		class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+		<property name="supportedMediaTypes">
+			<list>
+				<value>text/html;charset=UTF-8</value>
+				<value>application/json;charset=UTF-8</value>
+			</list>
+		</property>
+		<property name="objectMapper" ref="objectMapper" />
+	</bean>
+	<bean id="objectMapper" class="com.fasterxml.jackson.databind.ObjectMapper">
+		<property name="timeZone">
+			<bean class="java.util.TimeZone" factory-method="getTimeZone">
+				<constructor-arg value="GMT+08" />
+			</bean>
+		</property>
+		<property name="dateFormat">
+			<bean class="java.text.SimpleDateFormat">
+				<constructor-arg type="java.lang.String" value="yyyy-MM-dd HH:mm:ss" />
+			</bean>
+		</property>
+	</bean>
+	
+	<!-- <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"/> --> 
+	
+	<!-- Spring 统一异常处理 ExceptionAdvisor配置 -->
+	<bean id="exceptionHandler" class="com.frame.core.interceptor.AppExceptionHandler"></bean>
+<!-- 	<bean id="exceptionHandler" class="com.frame.sys.interceptor.ExceptionHandler"></bean> -->
+
+	<!-- Bean自动代理处理器 配置 -->
+	<bean class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator">
+		<property name="interceptorNames">
+			<list>
+				<value>exceptionHandler</value>
+				<!-- <value>logLnterceptor</value> -->
+				<!--<value>transactionInterceptor</value> -->
+			</list>
+		</property>
+	</bean>
+	<mvc:interceptors>
+		<!-- Spring 统一日志处理 LogInterceptor拦截器 配置 -->
+		<mvc:interceptor>
+			<mvc:mapping path="/**/**/**" />
+			
+			<mvc:exclude-mapping path="/tab"/> <!-- 不拦截的url -->
+			<mvc:exclude-mapping path="/toLoginDefault"/> <!-- 不拦截的url -->
+			<mvc:exclude-mapping path="/validateCode"/> <!-- 不拦截的url -->
+			<mvc:exclude-mapping path="/statics/**"/> <!-- 不拦截的url -->
+			<mvc:exclude-mapping path="/caseEvidence/**"/> <!-- 不拦截的url 文件图片的读取-->   
+			<mvc:exclude-mapping path="/caseInfoFile/**"/> <!-- 不拦截的url  文件图片的读取-->
+			<mvc:exclude-mapping path="/public/**"/><!-- 不拦截的url -->
+			<mvc:exclude-mapping path="/webmaster/**"/><!-- 不拦截的url -->
+			<mvc:exclude-mapping path="/template/**"/><!-- 不拦截的url -->
+			<mvc:exclude-mapping path="/docTemplate/**"/><!-- 不拦截的url -->
+			<mvc:exclude-mapping path="/unauth"/><!-- 不拦截的url -->			
+			<mvc:exclude-mapping path="/appServer/**"/><!-- 不拦截的url -->
+			<bean id="logLnterceptor" class="com.frame.sys.interceptor.LogInterceptor"></bean>
+		</mvc:interceptor>
+	</mvc:interceptors>
+</beans>

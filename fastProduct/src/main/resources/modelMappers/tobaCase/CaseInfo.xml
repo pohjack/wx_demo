@@ -1,0 +1,429 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.frame.tobaCase.entity.CaseInfo">
+	<resultMap id="BaseResultMap" type="com.frame.tobaCase.entity.CaseInfo">
+		<id column="id" property="id" />
+		<result column="regi_no" property="regiNo" />
+		<result column="case_no" property="caseNo" />
+		<result column="adv_regi_no" property="advRegiNo" />
+		<result column="crime_date" property="crimeDate" />
+		<result column="crime_start_time" property="crimeStartTime" />
+		<result column="crime_end_time" property="crimeEndTime" />
+		<result column="inqu_start_date" property="inquStartDate" />
+		<result column="inqu_end_date" property="inquEndDate" />
+		<result column="inqu_start_time" property="inquStartTime" />
+		<result column="inqu_end_time" property="inquEndTime" />
+		<result column="prin_name" property="prinName" />
+		<result column="is_site" property="isSite" />
+		<result column="case_cause_code" property="caseCauseCode" />
+		<result column="case_cause" property="caseCause" />
+		<result column="case_addr" property="caseAddr" />
+		<result column="entry_person" property="entryPerson" />
+		<result column="buy_way" property="buyWay" />
+		<result column="proxy_url" property="proxyUrl" />
+		<result column="proxy_id_card_url" property="proxyIdCardUrl" />
+		<result column="catchpole_name" property="catchpoleName" />
+		<result column="catchpole_no" property="catchpoleNo" />
+		<result column="fake_range" property="fakeRange" />
+		<result column="non_range" property="nonRange" />
+		<result column="creator" property="creator" />
+		<result column="created" property="created" />
+		<result column="updator" property="updator" />
+		<result column="updated" property="updated" />
+		<result column="remove_statue" property="removeStatue" />
+		<result column="case_source" property="caseSource" />
+		<result column="status" property="status" />
+		<result column="creat_org" property="creatOrg" />
+		<result column="cigar_outdate" property="cigarOutdate"/>
+	</resultMap>
+	<!-- 表名 -->
+	<sql id="tableNameSql">
+		b_case_info
+	</sql>
+	<!-- 当事人表名 -->
+	<sql id="caseInvoPersTable">
+		b_case_invo_pers
+	</sql>
+	<sql id="Base_Column_List">
+		id, regi_no, case_no, adv_regi_no, crime_date,
+		crime_start_time, crime_end_time, inqu_start_date, inqu_end_date,
+		inqu_start_time,
+		inqu_end_time, prin_name, is_site, case_cause_code,
+		case_cause,
+		case_addr, entry_person, buy_way, proxy_url,
+		proxy_id_card_url, catchpole_name,
+		catchpole_no, fake_range, non_range,
+		creator, created, updator,
+		updated, remove_statue,case_source,status,creat_org,
+		cigar_outdate
+	</sql>
+	<sql id="condition1">  <!-- 公共条件 -->
+		<if test="condition.removeStatue != null and condition.removeStatue != ''">
+			AND b_info.remove_statue = #{condition.removeStatue}
+		</if>
+		<if test="condition.idCard != null and condition.idCard != ''">
+			AND pers.id_card LIKE CONCAT(CONCAT('%', #{condition.idCard}),'%')  
+		</if>
+		<if test="condition.premises != null and condition.premises != ''">
+			AND pers.premises LIKE CONCAT(CONCAT('%', #{condition.premises}),'%')  
+		</if>
+		<if test="condition.regiNo != null and condition.regiNo != ''">
+			AND b_info.regi_no LIKE CONCAT(CONCAT('%', #{condition.regiNo}),'%')  
+		</if>
+		<if test="condition.perRespon != null and condition.perRespon != ''">
+			AND pers.per_respon LIKE CONCAT(CONCAT('%', #{condition.perRespon}),'%')  
+		</if>
+		<if test="condition.startDate != null and condition.startDate != ''">
+			AND b_info.crime_date &gt;= #{condition.startDate}  
+		</if>
+		<if test="condition.endDate != null and condition.endDate != ''">
+			AND b_info.crime_date &lt;= #{condition.endDate}  
+		</if>
+		<if test="condition.caseStatus != null and condition.caseStatus != ''">
+			AND b_info.status = #{condition.caseStatus}  
+		</if>
+		 <if test="orgs != null and orgs.size>0" >
+			AND b_info.creat_org IN <foreach collection="orgs" item = "orgs" open="(" separator="," close=")">#{ orgs}</foreach> 	  
+		</if>
+	</sql>
+	<!-- 案件基本信息与当事人列表栏目 -->
+	<sql id="Base_Info_And_Pers">
+		b_info.id,b_info.regi_no,b_info.crime_date,b_info.crime_start_time,b_info.crime_end_time,pers.per_respon,pers.party_phone,pers.phone,pers.premises,pers.id_card,b_info.status
+	</sql>
+	<select id="findByPage" parameterType="com.frame.core.commons.result.DateTablesResult" resultType="Map">
+		SELECT
+		<include refid="Base_Info_And_Pers" />
+		FROM
+		<include refid="tableNameSql" /> AS b_info LEFT JOIN <include refid="caseInvoPersTable" /> AS pers
+		ON b_info.id=pers.case_info_id
+		WHERE  b_info.id !='1'
+		<include refid="condition1"></include>
+		<if test="condition.iSortCol_0==1">
+			ORDER BY b_info.case_no ${condition.sSortDir_0}
+		</if>
+		<if test="condition.iSortCol_0==2">
+			ORDER BY pers.per_respon ${condition.sSortDir_0}
+		</if>
+		<if test="condition.iSortCol_0==3">   <!--案发时间特殊排序  -->
+			ORDER BY b_info.crime_date ${condition.sSortDir_0},
+			b_info.crime_start_time ${condition.sSortDir_0},
+			b_info.crime_end_time ${condition.sSortDir_0}
+		</if> 
+		<if test="condition.iSortCol_0==4">
+			ORDER BY pers.party_phone ${condition.sSortDir_0}
+		</if>
+		<if test="condition.iSortCol_0==5">
+			ORDER BY pers.phone ${condition.sSortDir_0}
+		</if>
+		<if test="condition.iSortCol_0==6">
+			ORDER BY pers.premises ${condition.sSortDir_0}
+		</if>
+		<if test="condition.iSortCol_0==7">
+			ORDER BY pers.id_card ${condition.sSortDir_0}
+		</if>
+		limit ${start},${length}
+	</select>
+	<select id="findAllTotal" parameterType="com.frame.core.commons.result.DateTablesResult" resultType="int">
+		SELECT COUNT(b_info.id)
+		FROM
+		<include refid="tableNameSql" /> AS b_info LEFT JOIN <include refid="caseInvoPersTable" /> AS pers
+		ON b_info.id=pers.case_info_id
+		WHERE b_info.id !='1'
+		<include refid="condition1"></include>
+	</select>
+	<select id="findById" parameterType="String" resultMap="BaseResultMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM
+		<include refid="tableNameSql" />
+		WHERE id=#{id}
+	</select>
+	<select id="findByKey" parameterType="String" resultType="hashMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM
+		<include refid="tableNameSql" />
+		WHERE id=#{id}
+	</select>
+
+	<!-- 保存案件 -->
+	<insert id="save" parameterType="com.frame.tobaCase.entity.CaseInfo">
+		INSERT INTO
+		<include refid="tableNameSql" />
+		(
+		<include refid="Base_Column_List" />
+		)
+		VALUES(
+		#{id},#{regiNo},#{caseNo},#{advRegiNo},#{crimeDate},#{crimeStartTime},#{crimeEndTime},#{inquStartDate},
+		#{inquEndDate},#{inquStartTime},#{inquEndTime},#{prinName},#{isSite},#{caseCauseCode},#{caseCause},#{caseAddr},#{entryPerson},
+		#{buyWay},#{proxyUrl},#{proxyIdCardUrl},#{catchpoleName},#{catchpoleNo},#{fakeRange},#{nonRange},#{creator},
+		#{created},#{updator},#{updated},#{removeStatue},#{caseSource},#{status},#{creatOrg},#{cigarOutdate}
+		)
+	</insert>
+	<!-- 修改案件 -->
+	<update id="update" parameterType="com.frame.tobaCase.entity.CaseInfo">
+		UPDATE
+		<include refid="tableNameSql" />
+		SET
+		regi_no = #{regiNo},
+		case_no = #{caseNo},
+		adv_regi_no = #{advRegiNo},
+		crime_date = #{crimeDate},
+		crime_start_time = #{crimeStartTime},
+		crime_end_time = #{crimeEndTime},
+		inqu_start_date = #{inquStartDate},
+		inqu_end_date = #{inquEndDate},
+		inqu_start_time = #{inquStartTime},
+		inqu_end_time = #{inquEndTime},
+		prin_name = #{prinName},
+		is_site = #{isSite},
+		case_cause_code = #{caseCauseCode},
+		case_cause = #{caseCause},
+		case_addr = #{caseAddr},
+		entry_person = #{entryPerson},
+		buy_way = #{buyWay},
+		proxy_url = #{proxyUrl},
+		proxy_id_card_url = #{proxyIdCardUrl},
+		catchpole_name = #{catchpoleName},
+		catchpole_no = #{catchpoleNo},
+		fake_range = #{fakeRange},
+		non_range = #{nonRange},
+		updator = #{updator},
+		updated = #{updated},
+		case_source=#{caseSource},
+		cigar_outdate=#{cigarOutdate}
+		WHERE
+		id = #{id}
+	</update>
+	<!-- 结案 -->
+	<update id="endCase" parameterType="string">
+		UPDATE
+		<include refid="tableNameSql" />
+		SET
+		status = 0
+		WHERE
+		id = #{caseId}
+	</update>
+
+	<!-- 逻辑删除 -->
+	<update id="removeByIds" parameterType="String">
+		UPDATE
+			<include refid="tableNameSql" />
+		SET
+			remove_statue = 1
+		WHERE
+			id IN
+			<foreach collection="ids" item = "ids" open="(" separator="," close=")">#{ ids}</foreach> 	
+	</update>
+	
+	<select id="findMaxCaseNo" resultType="int">
+		SELECT COUNT(id) FROM <include refid="tableNameSql" /> WHERE YEAR(created)=YEAR(NOW())
+	</select>
+	
+		
+	<!-- 查询全部 -->
+	<select id="findAll" resultMap="BaseResultMap">
+		SELECT 
+			<include refid="Base_Column_List" />
+		FROM 
+			<include refid="tableNameSql" />
+	</select>
+	
+	<!-- 统计条件 -->
+	<sql id="statsCondition">
+		<if test="startDate != null and startDate != ''">
+			AND b.created &gt;= #{startDate}
+		</if>
+		<if test="endDate != null and endDate != ''">
+			AND b.created &lt;= #{endDate}
+		</if>
+		<if test="cigarName != null and cigarName != ''">
+			AND c.name LIKE CONCAT(CONCAT('%', #{cigarName}),'%')   
+		</if>
+		<if test="status !=null and status !=''">
+			AND b.status = #{status}
+		</if>
+	</sql>
+	<!-- 查询立案或结案数量 -->
+	<select id="findCaseCount" resultType="String">
+		SELECT COUNT(*) FROM (
+			SELECT 
+				COUNT(b.id) AS caseCount
+			FROM 
+				<include refid="tableNameSql" /> b
+			LEFT JOIN b_case_info_slave a ON b.id = a.master_id
+			LEFT JOIN b_case_cigar c ON b.id = c.case_id
+			WHERE 1=1
+				AND b.id != 1
+				AND b.remove_statue = 0
+				<include refid="statsCondition" />
+			GROUP BY b.id
+		) t
+	</select>
+	
+	<!-- 按时间分段查询案件数量 -->
+	<select id="findCompareCase" parameterType="HashMap" resultType="HashMap">
+		SELECT
+			<foreach collection="dateList" item="date" separator=",">
+				SUM(
+					CASE WHEN crime_date &gt;= #{date.startDate} AND crime_date &lt; #{date.endDate} THEN 1 ELSE 0 END
+				) AS #{date.endDate}
+			</foreach>
+		FROM 
+			<include refid="tableNameSql" /> a
+			LEFT JOIN b_case_cigar b ON a.id = b.case_id
+		WHERE 1=1
+			AND b.id != 1 AND b.remove_statue = 0
+			<if test="cigarName !=null and cigarName !=''">
+				AND cigar_name = #{cigarName}
+			</if>
+	</select>
+	
+	<update id="updateCause" parameterType="com.frame.tobaCase.entity.CaseInfo">
+		UPDATE <include refid="tableNameSql" />
+		SET case_cause_code=#{caseCauseCode},
+			case_cause=#{caseCause}
+		WHERE id=#{id}
+	</update>
+	<update id="updateSource" parameterType="com.frame.tobaCase.entity.CaseInfo">
+		UPDATE <include refid="tableNameSql" />
+		SET case_source=#{caseSource}
+		WHERE id=#{id}
+	</update>
+	
+	<select id="findBySearchVo" parameterType="com.frame.tobaCase.entity.SearchDataVo" resultType="com.frame.tobaCase.entity.GatherModel">
+		SELECT
+			a.id ,
+			a.case_no AS caseNo,
+			a.crime_date AS crimeDate,
+			e.end_case AS endCase,
+			e.eval_date AS evalDate,
+			e.insp_repo_date AS inspRepoDate,
+			b.per_respon AS perRespon,
+			b.party_phone AS partyPhone,
+			b.premises AS premises,
+			(SELECT SUM(number) FROM b_case_cigar e WHERE a.id =e.case_id) AS preSumNum,
+			(SELECT SUM(number) FROM b_case_cigar e WHERE a.id =e.case_id AND e.inspect_result='假') AS falseSmokeNum,
+			(SELECT SUM(number) FROM b_case_cigar e WHERE a.id =e.case_id AND e.inspect_result='非') AS nonSmokeNum,
+			(SELECT SUM(number) FROM b_case_cigar e WHERE a.id =e.case_id AND e.inspect_result='私') AS smuggledSmokeNum,
+			IFNULL((SELECT SUM(total_value) FROM b_case_cigar e WHERE a.id =e.case_id AND e.inspect_result &lt;&gt;''),0) AS SumPrice,
+			IFNULL((SELECT SUM(total_value) FROM b_case_cigar e WHERE a.id =e.case_id AND e.inspect_result='假'),0) AS falsePrice,
+			IFNULL((SELECT SUM(total_value) FROM b_case_cigar e WHERE a.id =e.case_id AND e.inspect_result='非'),0) AS nonPrice,
+			IFNULL((SELECT SUM(total_value) FROM b_case_cigar e WHERE a.id =e.case_id AND e.inspect_result='私'),0) AS smuggledPrice,
+			c.opera_forms AS operaForms,
+			c.site_attr AS siteAttr,
+			d.org_name AS apartentMent  
+		FROM 
+			<include refid="tableNameSql" /> a
+			LEFT JOIN b_case_info_slave  e ON a.id=e.master_id
+			LEFT JOIN b_case_invo_pers b ON a.id = b.case_info_id
+			LEFT JOIN s_licence_info  c ON  b.lic_no=c.lic_no
+			LEFT JOIN s_organization d ON  a.creat_org =d.id
+			
+		WHERE 1=1 
+		AND  a.id !='1'
+		AND  a.remove_statue=0
+		<if test="idCard != null and idCard != ''">
+			AND b.id_card LIKE CONCAT(CONCAT('%', #{idCard}),'%')  
+		</if>
+		<if test="premises != null and premises != ''">
+			AND b.premises LIKE CONCAT(CONCAT('%', #{premises}),'%')  
+		</if>
+		<if test="regiNo != null and regiNo != ''">
+			AND a.regi_no LIKE CONCAT(CONCAT('%', #{regiNo}),'%')  
+		</if>
+		<if test="perRespon != null and perRespon != ''">
+			AND b.per_respon LIKE CONCAT(CONCAT('%', #{perRespon}),'%')  
+		</if>
+		<if test="startDate != null and startDate != ''">
+			AND a.crime_date &gt;= #{startDate}  
+		</if>
+		<if test="endDate != null and endDate != ''">
+			AND a.crime_date &lt;= #{endDate}  
+		</if>
+		<if test="caseStatus != null and caseStatus != ''">
+			AND a.status = #{caseStatus}  
+		</if>
+		 <if test="orgs != null and orgs.size>0" >
+			AND a.creat_org IN <foreach collection="orgs" item = "orgs" open="(" separator="," close=")">#{orgs}</foreach> 	  
+		</if>
+		GROUP BY a.case_no DESC
+	</select>
+	
+	
+	<select id="findBySearch" parameterType="com.frame.tobaCase.entity.SearchDataVo" resultType="com.frame.tobaCase.entity.NonExcel">
+		SELECT
+			a.id ,
+			a.regi_no AS regiNo,
+			a.case_addr AS caseAddr,
+			a.crime_date AS crimeDate,
+			b.per_respon AS perRespon,
+			(SELECT SUM(number) FROM b_case_cigar e WHERE a.id =e.case_id AND e.inspect_result='非') AS nonSmokeNum,
+			IFNULL((
+				SELECT
+					COUNT(DISTINCT e.cigar_id)
+				FROM
+					b_case_cigar e
+				WHERE
+					a.id = e.case_id
+				AND e.inspect_result = '非'
+			) ,0) AS kindNo,
+			IFNULL((SELECT SUM(total_value) FROM b_case_cigar e WHERE a.id =e.case_id AND e.inspect_result='非'),0) AS nonPrice
+		FROM 
+			<include refid="tableNameSql" /> a
+			LEFT JOIN b_case_info_slave  e ON a.id=e.master_id
+			LEFT JOIN b_case_invo_pers b ON a.id = b.case_info_id
+			LEFT JOIN s_licence_info  c ON  b.lic_no=c.lic_no
+			LEFT JOIN s_organization d ON  a.creat_org =d.id
+			
+		WHERE 1=1 
+		AND  a.id !='1'
+		AND  a.remove_statue=0
+		<if test="idCard != null and idCard != ''">
+			AND b.id_card LIKE CONCAT(CONCAT('%', #{idCard}),'%')  
+		</if>
+		<if test="premises != null and premises != ''">
+			AND b.premises LIKE CONCAT(CONCAT('%', #{premises}),'%')  
+		</if>
+		<if test="regiNo != null and regiNo != ''">
+			AND a.regi_no LIKE CONCAT(CONCAT('%', #{regiNo}),'%')  
+		</if>
+		<if test="perRespon != null and perRespon != ''">
+			AND b.per_respon LIKE CONCAT(CONCAT('%', #{perRespon}),'%')  
+		</if>
+		<if test="startDate != null and startDate != ''">
+			AND a.crime_date &gt;= #{startDate}  
+		</if>
+		<if test="endDate != null and endDate != ''">
+			AND a.crime_date &lt;= #{endDate}  
+		</if>
+		<if test="caseStatus != null and caseStatus != ''">
+			AND a.status = #{caseStatus}  
+		</if>
+		 <if test="orgs != null and orgs.size>0" >
+			AND a.creat_org IN <foreach collection="orgs" item = "orgs" open="(" separator="," close=")">#{orgs}</foreach> 	  
+		</if>
+		GROUP BY a.case_no DESC
+	</select>
+	
+	<!-- 查询相同立案编号的数量 -->
+	<select id="regiNoIsSame" parameterType="String" resultType="Integer">
+		SELECT 
+			COUNT(id)
+		FROM
+			<include refid="tableNameSql" />
+		WHERE
+			regi_no = #{regiNo}
+			AND remove_statue = 0
+	</select>
+	
+	
+	<select id="findCountByCaseId" parameterType="String" resultType="String">
+		SELECT 
+			prin_name
+		FROM
+			<include refid="tableNameSql" />
+		WHERE 
+			id = #{caseInfoId}
+	</select>
+</mapper>

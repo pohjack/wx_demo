@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.frame.sys.entity.LogLogin">
+	<resultMap id="BaseResultMap" type="com.frame.sys.entity.LogLogin">
+		<id column="id" property="id" />
+		<result column="login_type" property="type" />
+		<result column="log_created" property="created" />
+		<result column="log_creator" property="creator" />
+		<result column="login_ip" property="loginIp" />
+		<result column="login_mac" property="loginMac" />
+		<result column="log_content" property="content" />
+		<result column="login_fail" property="loginFail" />
+	</resultMap>
+	<parameterMap type="com.frame.sys.entity.LogLogin" id="BaseParameterMap">
+		<parameter property="id" />
+		<parameter property="type" />
+		<parameter property="created" />
+		<parameter property="loginIp" />
+		<parameter property="loginMac" />
+		<parameter property="content" />
+	</parameterMap>
+	<!-- 表名 -->
+	<sql id="tableNameSql">
+		log_login
+	</sql>
+	<sql id="Base_Column_List">
+		id,login_type,login_ip,login_mac,log_creator,log_created,log_content,login_fail
+	</sql>
+	<select id="findByPage" resultType="Map" parameterType="com.frame.core.commons.result.DateTablesResult">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM
+		<include refid="tableNameSql" /> AS a WHERE 1=1 
+			<if test="condition.loginNameSearch !=null and  condition.loginNameSearch !='' ">
+			AND		log_creator LIKE CONCAT(CONCAT('%', #{condition.loginNameSearch}),'%')
+			
+		</if> 		
+		<if test="condition.state !=null and condition.state !=''"> AND login_type =#{condition.state}</if> 
+		<if test="condition.startTime!=null and condition.startTime!=''"><!-- 起始时间 -->
+			AND log_created &gt;= #{condition.startTime} 
+		</if>
+		<if test="condition.endTime!=null and condition.endTime!=''"><!-- 结束时间 -->
+			AND log_created &lt;= #{condition.endTime} 
+		</if>
+	  ORDER BY log_created DESC LIMIT ${start},${length} 
+	</select>
+	<select id="findAllTotal" parameterType="com.frame.core.commons.result.DateTablesResult" resultType="int">
+	    SELECT count(id) FROM <include refid="tableNameSql" /> AS a WHERE 1=1 
+			<if test="condition.loginNameSearch !=null and  condition.loginNameSearch !='' ">
+			AND		log_creator LIKE CONCAT(CONCAT('%', #{condition.loginNameSearch}),'%')
+			
+		</if> 		
+		<if test="condition.state !=null and condition.state !=''"> AND login_type =#{condition.state}</if> 
+		<if test="condition.startTime!=null and condition.startTime!=''"><!-- 起始时间 -->
+			AND log_created &gt;= #{condition.startTime} 
+		</if>
+		<if test="condition.endTime!=null and condition.endTime!=''"><!-- 结束时间 -->
+			AND log_created &lt;= #{condition.endTime} 
+		</if>
+	</select>
+
+	<insert id="save" parameterType="com.frame.sys.entity.LogLogin">
+		INSERT INTO
+		<include refid="tableNameSql" />
+		(
+		<include refid="Base_Column_List" />
+		)
+		VALUES
+		(#{id},#{type},#{loginIp},#{loginMac},#{creator},#{created},#{content},#{loginFail});
+	</insert>
+
+	<delete id="removeAll">
+		DELETE FROM
+		<include refid="tableNameSql" />
+	</delete>
+	<update id="update" parameterType="com.frame.sys.entity.LogLogin">
+		UPDATE <include refid="tableNameSql" /> 
+		SET 
+		login_type=#{type}, 
+		created=#{created}, 
+		login_ip=#{loginIp}, 
+		login_mac=#{loginMac}, 
+		log_content=#{content},
+		log_creator=#{creator},
+		login_fail=#{loginFail}
+		WHERE id=#{id}
+	</update>
+	<select id="findLogLoginById" resultMap="BaseResultMap" parameterType="java.lang.String">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM
+		<include refid="tableNameSql" />
+		WHERE id=#{id}
+	</select>
+</mapper>

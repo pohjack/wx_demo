@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.frame.tobaCase.entity.CaseInvoPers">
+	<resultMap id="BaseResultMap" type="com.frame.tobaCase.entity.CaseInvoPers">
+		<id column="id" property="id" />
+		<result column="case_info_id" property="caseInfoId" />
+		<result column="per_respon" property="perRespon" />
+		<result column="premises" property="premises" />
+		<result column="audi_dept" property="audiDept" />
+		<result column="audi_dept" property="audiDept" />
+		<result column="party_phone" property="partyPhone" />
+		<result column="retail_code" property="retailCode" />
+		<result column="id_card" property="idCard" />
+		<result column="id_card_addr" property="idCardAddr" />
+		<result column="corp_name" property="corpName" />
+		<result column="sex" property="sex" />
+		<result column="age" property="age" />
+		<result column="jobs" property="jobs" />
+		<result column="nation" property="nation" />
+		<result column="phone" property="phone" />
+		<result column="lic_no" property="licNo" />
+	</resultMap>
+	<!-- 表名 -->
+	<sql id="tableNameSql">
+		b_case_invo_pers
+	</sql>
+	<sql id="Base_Column_List">
+		id, case_info_id, per_respon, premises, lic_no,
+		audi_dept, party_phone, retail_code, id_card, id_card_addr,
+		corp_name, sex, age, jobs, nation, phone
+	</sql>
+	<sql id="Base_Column_List1">
+		 case_info_id, per_respon, premises, lic_no,
+		audi_dept, party_phone, retail_code, id_card, id_card_addr,
+		corp_name, sex, age, jobs, nation, phone
+	</sql>
+	
+	<select id="findByCaseId" parameterType="String" resultType="hashMap">
+		SELECT <include refid="Base_Column_List1" /> FROM <include refid="tableNameSql" />
+		WHERE case_info_id = #{id} 
+	</select>
+	
+	<!-- 保存 -->
+	<insert id="save" parameterType="com.frame.tobaCase.entity.CaseInvoPers">
+		INSERT INTO
+			<include refid="tableNameSql" />
+		(<include refid="Base_Column_List" />)
+		VALUES (
+			#{id},
+			#{caseInfoId},
+			#{perRespon},
+			#{premises},
+			#{licNo},
+			#{audiDept},
+			#{partyPhone},
+			#{retailCode},
+			#{idCard},
+			#{idCardAddr},
+			#{corpName},
+			#{sex},
+			#{age},
+			#{jobs},
+			#{nation},
+			#{phone}
+		)
+	</insert>
+	<!-- 修改 -->
+	<update id="update" parameterType="com.frame.tobaCase.entity.CaseInvoPers">
+		UPDATE
+			<include refid="tableNameSql" />
+		SET
+			per_respon = #{perRespon},
+			premises = #{premises},
+			lic_no = #{licNo},
+			audi_dept = #{audiDept},
+			party_phone = #{partyPhone},
+			retail_code = #{retailCode},
+			id_card = #{idCard},
+			id_card_addr = #{idCardAddr},
+			corp_name = #{corpName},
+			sex = #{sex},
+			age = #{age},
+			jobs = #{jobs},
+			nation = #{nation},
+			phone = #{phone}
+		WHERE
+			case_info_id = #{caseInfoId}
+	</update>
+	
+	<select id="findById" parameterType="String" resultMap="BaseResultMap">
+		SELECT 
+			<include refid="Base_Column_List" />
+		FROM
+			<include refid="tableNameSql" />
+		WHERE
+			case_info_id = #{caseInfoId}
+	</select>
+	
+	<select id="findByLicNo" parameterType="String" resultMap="BaseResultMap">
+		SELECT 
+			<include refid="Base_Column_List" />
+		FROM
+			<include refid="tableNameSql" />
+		WHERE
+			lic_no = #{licNo}
+	</select>
+	
+	<select id="findCountByCaseId" parameterType="String" resultType="Integer">
+		SELECT 
+			COUNT(id)
+		FROM
+			<include refid="tableNameSql" />
+		WHERE 
+			case_info_id = #{caseInfoId}
+			AND per_respon != '' 
+			AND per_respon IS NOT NULL
+	</select>
+</mapper>

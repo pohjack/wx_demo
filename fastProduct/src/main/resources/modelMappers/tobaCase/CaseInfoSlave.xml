@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.frame.tobaCase.entity.CaseInfoSlave">
+	<resultMap id="BaseResultMap" type="com.frame.tobaCase.entity.CaseInfoSlave">
+		<id column="id" property="id" />
+		<result column="master_id" property="masterId" />
+		<result column="user_id" property="userId" />
+		<result column="user_name" property="userName" />
+		<result column="insp_date" property="inspDate" />
+		<result column="ask_date" property="askDate" />
+		<result column="in_inform_date" property="inInformDate" />
+		<result column="eval_date" property="evalDate" />
+		<result column="end_case" property="endCase" />
+		<result column="penalty_date" property="penaltyDate" />
+		<result column="end_inqu_date" property="endInquDate" />
+		<result column="archive_date" property="archiveDate" />
+		<result column="insp_repo_date" property="inspRepoDate" />
+		<result column="batchs_date" property="batchsDate" />
+	</resultMap>
+	<!-- 表名 -->
+	<sql id="tableNameSql">
+		b_case_info_slave
+	</sql>
+	<sql id="Base_Column_List">
+		master_id, id, user_id, user_name, insp_date,
+		ask_date, in_inform_date, eval_date, end_case,
+		penalty_date, end_inqu_date, archive_date, insp_repo_date, batchs_date
+	</sql>
+	<sql id="Base_Column_List1">
+		master_id, user_id, user_name, insp_date,
+		ask_date, in_inform_date, eval_date, end_case,
+		penalty_date, end_inqu_date, archive_date, insp_repo_date, batchs_date
+	</sql>
+	
+	<select id="findByCaseId" parameterType="String" resultType="hashMap">
+		SELECT <include refid="Base_Column_List1" /> FROM <include refid="tableNameSql" />
+		WHERE master_id = #{id} 
+	</select>
+	
+	<select id="findByMasterId" parameterType="String" resultMap="BaseResultMap">
+		SELECT <include refid="Base_Column_List1" /> FROM <include refid="tableNameSql" />
+		WHERE master_id = #{id} 
+	</select>
+	
+	<!-- 保存 -->
+	<insert id="save" parameterType="com.frame.tobaCase.entity.CaseInfoSlave">
+		INSERT INTO
+			<include refid="tableNameSql" />
+		(<include refid="Base_Column_List" />)
+		VALUES(
+			#{masterId},
+			#{id},
+			#{userId},
+			#{userName},
+			#{inspDate},
+			#{askDate},
+			#{inInformDate},
+			#{evalDate},
+			#{endCase},
+			#{penaltyDate},
+			#{endInquDate},
+			#{archiveDate},
+			#{inspRepoDate},
+			#{batchsDate}
+		)
+	</insert>
+	<!-- 修改 -->
+	<update id="update" parameterType="com.frame.tobaCase.entity.CaseInfoSlave">
+		UPDATE
+			<include refid="tableNameSql" />
+		SET
+			user_id = #{userId},
+			user_name = #{userName},
+			insp_date = #{inspDate},
+			ask_date = #{askDate},
+			in_inform_date = #{inInformDate},
+			eval_date = #{evalDate},
+			end_case = #{endCase},
+			penalty_date = #{penaltyDate},
+			end_inqu_date = #{endInquDate},
+			archive_date = #{archiveDate},
+			insp_repo_date = #{inspRepoDate},
+			batchs_date = #{batchsDate}
+		WHERE
+			master_id = #{masterId}
+	</update>
+	
+	<select id="findById" parameterType="String" resultMap="BaseResultMap">
+		SELECT 
+			<include refid="Base_Column_List" />
+		FROM
+			<include refid="tableNameSql" />
+		WHERE
+			id = #{id} 
+	</select>
+</mapper>

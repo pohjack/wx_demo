@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.frame.sys.entity.User">
+	<resultMap id="BaseResultMap" type="com.frame.sys.entity.User">
+		<id column="id" property="id" />
+		<result column="user_name" property="loginName" />
+		<result column="password" property="password" />
+		<result column="real_name" property="realName" />
+		<result column="org_id" property="orgId" />
+		<result column="mobile" property="mobile" />
+		<result column="email" property="email" />
+		<result column="creator" property="creator" />
+		<result column="created" property="created" />
+		<result column="updator" property="updator" />
+		<result column="remove_statue" property="removeStatue" />
+		<result column="status" property="status" />
+		<result column="sort" property="sort" />
+		<result column="remark" property="remark" />
+		<result column="updated" property="updated" />
+		<result column="login_times" property="loginTimes" />
+		<result column="login_time" property="loginTime" />
+		<result column="card_id" property="cardId" />
+	</resultMap>
+	<!-- 表名 -->
+	<sql id="tableNameSql">
+		s_user AS a
+	</sql>
+	<sql id="Base_Column_List">
+		a.id,user_name,password,real_name,org_id,
+		a.creator,a.mobile,a.email,
+		a.created,a.updator,a.updated,a.sort,a.status,a.remove_statue,a.remark,a.login_times,a.login_time,a.card_id
+	</sql>
+	<sql id="Base_Column_ListOne">
+		id,user_name,password,real_name,card_id,org_id, creator,
+		mobile,email,
+		created,updator,updated,sort,status,remove_statue,remark
+	</sql>
+	
+	<sql id="condition">
+		<if test="condition.state != null and condition.state != ''"> AND a.status = #{condition.state}</if>
+		<!-- <if test="condition.startTime != null and condition.startTime != ''">起始时间
+			AND a.updated &gt;= #{condition.startTime}
+		</if>
+		<if test="condition.endTime != null and condition.endTime != ''">结束时间
+			AND a.updated &lt;= #{condition.endTime}
+		</if> -->
+		<if test="condition.name != null and  condition.name != '' ">
+			AND a.user_name LIKE CONCAT(CONCAT('%', #{condition.name}),'%')
+		</if>
+		<if test="condition.realName != null and  condition.realName != '' ">
+			AND a.real_name LIKE CONCAT(CONCAT('%', #{condition.realName}),'%')
+		</if>
+		<if test="condition.mobile != null and  condition.mobile != '' ">
+			AND a.mobile LIKE CONCAT(CONCAT('%', #{condition.mobile}),'%')
+		</if>
+		<if test="condition.orgId != null and  condition.orgId != '' ">  <!-- 机构选择 -->
+			AND a.org_id = #{condition.orgId }
+		</if>
+		<if test="condition.currentId != null and  condition.currentId != '' ">  <!-- 排除当前登录-->
+			AND a.id &lt;&gt; #{condition.currentId}
+		</if>
+	</sql>
+	
+	<select id="findByPage" parameterType="com.frame.core.commons.result.DateTablesResult"
+		resultType="Map">
+		SELECT
+		<include refid="Base_Column_List" /> ,o.org_name AS orgName, GROUP_CONCAT(r.role_name) AS roleName
+		FROM
+		<include refid="tableNameSql" />
+		LEFT JOIN s_organization AS o ON a.org_id = o.id
+		LEFT JOIN s_user_role AS s ON a.id = s.user_id
+		LEFT JOIN s_role AS r ON r.remove_statue = 0 AND  r.status= 1 AND s.role_id = r.id
+		WHERE 1=1 	AND   a.remove_statue &lt;&gt; 1 	AND a.id &lt;&gt; 1 
+			<include refid="condition" />
+		 GROUP BY a.id
+		<if test="condition.iSortCol_0==2">
+			ORDER BY a.real_name ${condition.sSortDir_0}
+		</if>
+		limit ${start},${length}
+	</select>
+	
+	<select id="findAllTotal" parameterType="com.frame.core.commons.result.DateTablesResult"
+		resultType="int">
+		SELECT COUNT(a.id) FROM
+		<include refid="tableNameSql" />
+		WHERE 1=1  	AND a.remove_statue &lt;&gt; 1 	AND a.id &lt;&gt; 1 
+		<include refid="condition" />	
+	</select>
+
+	<select id="findUserByLoginName" resultMap="BaseResultMap" parameterType="java.lang.String">
+		SELECT <include refid="Base_Column_List" /> FROM <include refid="tableNameSql" /> WHERE user_name = #{loginName} AND remove_statue &lt;&gt; 1
+	</select>
+<!-- 查询重复数量 -->
+	<select id="findUserCountByLoginName" resultType="String" parameterType="String">
+		SELECT COUNT(id) FROM
+		<include refid="tableNameSql" /> WHERE user_name = #{loginName} AND a.remove_statue != 1
+	</select>
+	
+	<select id="findById" parameterType="String" resultMap="BaseResultMap">
+		SELECT <include refid="Base_Column_List" />
+		FROM <include refid="tableNameSql" />
+		WHERE id=#{id}
+	</select>
+
+	<update id="removeByIds" parameterType="HashMap">
+		DELETE FROM s_user
+		WHERE id IN
+		<foreach collection="ids" item="id" open="(" separator="," close=")">#{ id}</foreach>
+	</update>
+
+	<insert id="save" parameterType="com.frame.sys.entity.User">
+		INSERT INTO s_user ( <include refid="Base_Column_ListOne" /> )
+		VALUES (      
+			#{id},                                 
+			#{loginName}, 
+			#{password}, 
+			#{realName},
+			#{cardId} ,
+			#{orgId}, 
+			#{creator}, 
+			#{mobile}, 
+			#{email}, 
+			#{created}, 
+			#{updator}, 
+			#{updated},
+			#{sort}, 
+			#{status}, 
+			#{removeStatue},
+			#{remark}                  
+		)
+	</insert>
+
+	<update id="update" parameterType="com.frame.sys.entity.User">
+		UPDATE <include refid="tableNameSql" /> SET
+		<if test="password != null and password!=''"> password=#{password}, </if>
+		<if test="realName != null and realName!=''"> real_name=#{realName}, </if>
+		<if test="orgId != null and orgId!=''"> org_id=#{orgId}, </if>
+		<if test="remark != null and remark != ''"> remark=#{remark}, </if>
+		<if test="mobile != null and mobile !=''"> mobile=#{mobile}, </if>
+		<if test="email != null and email !=''"> email =#{email}, </if>
+		<if test="cardId != null and cardId !=''"> card_id =#{cardId}, </if>
+		<if test="status != null">status=#{status},</if>
+		updator=#{updator}, updated=#{updated} WHERE id=#{id}
+	</update>
+
+	<update id="updateLoginTimes" parameterType="com.frame.sys.entity.User">
+		UPDATE
+		<include refid="tableNameSql" />
+		SET
+		<if test="loginTimes == 1"> login_times=login_times + 1, </if>
+		<if test="loginTimes == 0"> login_times=#{loginTimes}, </if>
+		login_time=#{loginTime} WHERE user_name=#{loginName}
+	</update>
+
+	<!-- 解锁 将登录次数为0 -->
+	<update id="unlock" parameterType="HashMap">
+		UPDATE <include refid="tableNameSql" />
+		SET login_times=0 
+			updator=#{updator}, 
+			updated=#{updated}
+		WHERE id =#{id}
+	</update>
+
+
+	<select id="findAll" parameterType="String" resultMap="BaseResultMap">
+		SELECT 
+		user_name,real_name,card_id, mobile,email
+		FROM <include refid="tableNameSql" />
+		WHERE 1=1
+		<if test="loginName != null and loginName != ''"> AND user_name LIKE CONCAT(CONCAT('%', #{loginName}),'%')</if>
+		<if test="realName != null and realName != ''"> AND real_name LIKE CONCAT(CONCAT('%', #{realName}),'%')</if>
+		<if test="mobile != null and mobile != ''"> AND name LIKE CONCAT(CONCAT('%', #{mobile}),'%')</if>
+		<if test="orgId != null and orgId != ''"> AND org_id =#{orgId}</if>
+		<if test="status != null and status != ''"> AND  status=#{status}</if>
+	</select>
+	
+	<select id="findAllMap" parameterType="com.frame.sys.entity.User" resultType="HashMap">
+		SELECT 
+		user_name AS loginName,real_name AS realName,card_id AS cardId, mobile,email
+		FROM <include refid="tableNameSql" />
+		WHERE 1=1
+		<if test="loginName != null and loginName != ''"> AND user_name LIKE CONCAT(CONCAT('%', #{loginName}),'%')</if>
+		<if test="realName != null and realName != ''"> AND real_name LIKE CONCAT(CONCAT('%', #{realName}),'%')</if>
+		<if test="mobile != null and mobile != ''"> AND name LIKE CONCAT(CONCAT('%', #{mobile}),'%')</if>
+		<if test="status != null and status != ''"> AND  status=#{status}</if>
+	</select>
+	
+	
+	<!-- 查询非管理员用户 -->
+	<select id="findNotAdminAndRoot" parameterType="String" resultMap="BaseResultMap">
+		SELECT 
+			id,
+			user_name,
+			real_name,
+			card_id
+		FROM
+			<include refid="tableNameSql" />
+		WHERE
+			id NOT IN(1, 2)
+	</select>
+	<!--  根据id数组查询多条记录-->
+	<select id="findByIds" resultMap="BaseResultMap">
+		SELECT 
+			<include refid="Base_Column_List" />
+		FROM
+			<include refid="tableNameSql" />
+		WHERE 
+			id IN <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+	</select>
+	
+	<!-- 根据机构id 查找用户 -->
+	<select id="findByOrgId" parameterType="String" resultMap="BaseResultMap">
+		SELECT <include refid="Base_Column_ListOne" />
+		FROM <include refid="tableNameSql" />
+		WHERE org_id = #{orgId}
+	</select>
+	
+</mapper>

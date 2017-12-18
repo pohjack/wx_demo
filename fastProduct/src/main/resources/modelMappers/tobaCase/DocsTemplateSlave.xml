@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.frame.tobaCase.entity.DocsTemplateSlave">
+	<resultMap id="BaseResultMap" type="com.frame.tobaCase.entity.DocsTemplateSlave">
+		<id column="id" property="id" />
+		<result column="master_id" property="masterId" />
+		<result column="base_temp_id" property="baseTempId" />
+		<result column="type" property="type" />
+		<result column="sort" property="sort" />
+		<result column="remark" property="remark" />
+	</resultMap>
+	<!-- 表名 -->
+	<sql id="tableNameSql">
+		b_docs_temp_slave
+	</sql>
+	<sql id="Base_Column_List">
+		id,master_id,base_temp_id,type,sort,remark
+	</sql>
+
+	<select id="findByMasterId" parameterType="hashMap" resultMap="BaseResultMap">
+		SELECT <include refid="Base_Column_List" /> FROM <include refid="tableNameSql" />
+		WHERE master_id = #{id} AND type=#{tag} ORDER BY sort ASC
+	</select>
+	<insert id="save" parameterType="com.frame.tobaCase.entity.DocsTemplateSlave">
+		INSERT INTO
+			<include refid="tableNameSql" />
+		(<include refid="Base_Column_List" />)
+		VALUES (
+			#{id},
+			#{masterId},
+			#{baseTempId},
+			#{type},
+			#{sort},
+			#{remark}
+		)
+	</insert>
+	
+	<select id="getTopSort" parameterType="string" resultType="integer">
+		SELECT IFNULL(MAX(sort),0) 
+		FROM <include refid="tableNameSql" /> 
+		WHERE master_id=#{masterId}	
+	</select>
+	
+	<delete id="removeByIds" parameterType="String">
+		DELETE FROM <include refid="tableNameSql" />
+		WHERE id IN
+			<foreach collection="ids" item = "ids" open="(" separator="," close=")">#{ ids}</foreach> 
+	</delete>	
+	
+	<update id="updateSort" parameterType="com.frame.tobaCase.entity.DocsTemplateSlave">
+		UPDATE
+			<include refid="tableNameSql" />
+		SET
+			sort=#{sort} 
+		WHERE id=#{id}
+	</update>
+	
+	<select id="findById" parameterType="String" resultMap="BaseResultMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM
+		<include refid="tableNameSql" />
+		WHERE id=#{id}
+	</select>
+</mapper>

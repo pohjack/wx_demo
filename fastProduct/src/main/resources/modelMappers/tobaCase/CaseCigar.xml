@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.frame.tobaCase.entity.CaseCigar">
+	<resultMap id="BaseResultMap" type="com.frame.tobaCase.entity.CaseCigar">
+		<id column="id" property="id" />
+		<result column="case_id" property="caseId" />
+		<result column="cigar_id" property="cigarId" />
+		<result column="bar_code" property="barCode" />
+		<result column="name" property="name" />
+		<result column="number" property="number" />
+		<result column="unit" property="unit" />
+		<result column="retail_price" property="retailPrice" />
+		<result column="total_value" property="totalValue" />
+		<result column="pre_qualitative" property="preQualitative" />
+		<result column="inspect_result" property="inspectResult" />
+		<result column="cigar_attr" property="cigarAttr" />
+		<result column="created" property="created"/>
+		<result column="inspect_num" property="inspectNum"/>
+		<result column="return_num" property="returnNum"/>
+		<result column="format" property="format"/>
+	</resultMap>
+	<!-- 表名 -->
+	<sql id="tableNameSql">
+		b_case_cigar
+	</sql>
+	<sql id="Base_Column_List">
+		id,case_id,cigar_id,bar_code,name,number,unit,retail_price,total_value,pre_qualitative,inspect_result,cigar_attr,created,inspect_num,return_num,format
+	</sql>
+
+	<select id="findByCaseId" parameterType="String" resultMap="BaseResultMap">
+		SELECT <include refid="Base_Column_List" /> FROM <include refid="tableNameSql" />
+		WHERE case_id = #{id} 
+	</select>
+	<select id="findTypesByid" parameterType="String" resultType="String">
+		SELECT GROUP_CONCAT(DISTINCT(inspect_result) ORDER BY FIELD(inspect_result,'假','非','私')) FROM <include refid="tableNameSql" />
+		WHERE case_id = #{id} 
+	</select>
+	<select id="countTotalVal" parameterType="hashMap" resultType="double">
+		SELECT IFNULL(SUM(total_value),0) FROM <include refid="tableNameSql" />
+		WHERE case_id = #{id}  AND inspect_result = #{param}
+	</select>
+	<select id="findByAttr" parameterType="hashMap" resultMap="BaseResultMap">
+		SELECT <include refid="Base_Column_List" /> FROM <include refid="tableNameSql" />
+		WHERE case_id = #{id}  AND inspect_result = #{param}
+	</select>
+	<select id="countType" parameterType="string" resultType="string">
+		SELECT CONCAT_WS(",",COUNT(id),SUM(number)) AS res FROM <include refid="tableNameSql" />
+		 WHERE case_id = #{id}
+	</select>
+	<select id="findById" parameterType="String" resultMap="BaseResultMap">
+		SELECT 
+			<include refid="Base_Column_List" /> 
+		FROM
+			<include refid="tableNameSql" />
+		WHERE
+			id = #{id}
+	</select>
+	<sql id="condition">
+		AND b.id != '1' AND b.remove_statue = 0
+		<if test="condition.caseInfoId == '' "> 
+			AND case_id = '1'
+		</if>
+		<if test="condition.caseInfoId != null and condition.caseInfoId != '' "> 
+			AND case_id = #{condition.caseInfoId}
+		</if>
+		<if test="condition.cigarType != null and condition.cigarType != '' "> 
+			AND a.inspect_result = #{condition.cigarType}
+		</if>
+		<if test="condition.startDate != null and condition.startDate != ''">
+			AND b.created &gt;= #{condition.startDate}
+		</if>
+		<if test="condition.endDate != null and condition.endDate != ''">
+			AND b.created &lt;= #{condition.endDate}
+		</if>
+		<if test="condition.name != null and condition.name != ''">
+			AND a.name = #{condition.name}
+		</if>
+		<if test="orgs != null and orgs.size>0">
+			AND b.creat_org IN <foreach collection="orgs" item = "orgs" open="(" separator="," close=")">#{orgs}</foreach> 	  
+		</if>
+		
+	</sql>
+	<!-- 分页查询卷烟 -->
+	<select id="findByPage" resultType="hashMap" parameterType="com.frame.core.commons.result.DateTablesResult">
+		SELECT
+			a.id, 
+			case_id AS caseId, 	
+			cigar_id AS cigarId,
+			bar_code AS barCode,
+			name,
+			number,
+			unit,
+			retail_price AS retailPrice,
+			total_value AS totalValue,
+			pre_qualitative AS preQualitative,
+			inspect_result AS inspectResult,
+			cigar_attr AS cigarAttr,
+			b.created AS created,
+			inspect_num AS inspectNum,
+			return_num AS returnNum,
+			b.regi_no AS regiNo
+		FROM
+			<include refid="tableNameSql" /> a
+			LEFT JOIN b_case_info b ON a.case_id = b.id
+		WHERE 1=1
+			<include refid="condition" />
+		ORDER BY b.created DESC
+		<if test="length != 2">
+		LIMIT ${start},${length} 
+		</if>
+	</select>
+
+	<select id="findAllTotal" parameterType="com.frame.core.commons.result.DateTablesResult" resultType="int">
+		SELECT count(a.id) FROM
+			<include refid="tableNameSql" /> a
+			LEFT JOIN b_case_info b ON a.case_id = b.id
+		WHERE 1=1
+			<include refid="condition" />
+	</select>
+	<!-- 新增 -->
+	<insert id="save" parameterType="com.frame.tobaCase.entity.CaseCigar">
+		INSERT INTO
+			<include refid="tableNameSql" />
+		(<include refid="Base_Column_List" />)
+		VALUES (
+			#{id},
+			#{caseId},
+			#{cigarId},
+			#{barCode},
+			#{name},
+			#{number},
+			#{unit},
+			#{retailPrice},
+			#{totalValue},
+			#{preQualitative},
+			#{inspectResult},
+			#{cigarAttr},
+			#{created},
+			#{inspectNum},
+			#{returnNum},
+			#{format}
+		)
+	</insert>
+	<insert id="saveAll" parameterType="com.frame.tobaCase.entity.CaseCigar">
+		INSERT INTO
+			<include refid="tableNameSql" />
+		(<include refid="Base_Column_List" />)
+		VALUES 
+		<foreach collection="list" item = "caseCigar" separator=",">
+			(#{caseCigar.id}, #{caseCigar.caseId}, #{caseCigar.cigarId}, #{caseCigar.barCode}, #{caseCigar.name}, #{caseCigar.number}, #{caseCigar.unit}, #{caseCigar.retailPrice}, 
+			#{caseCigar.totalValue}, #{caseCigar.preQualitative}, #{caseCigar.inspectResult}, #{caseCigar.cigarAttr}, #{caseCigar.created},#{caseCigar.inspectNum},#{caseCigar.returnNum},#{caseCigar.format})
+		 </foreach>
+	</insert>
+	<!-- 修改 -->
+	<update id="update" parameterType="com.frame.tobaCase.entity.CaseCigar">
+		UPDATE
+			<include refid="tableNameSql" />
+		SET
+			bar_code = #{barCode},
+			name = #{name},
+			number = #{number},
+			unit = #{unit},
+			retail_price = #{retailPrice},
+			total_value = #{totalValue},
+			pre_qualitative = #{preQualitative},
+			inspect_result = #{inspectResult},
+			cigar_attr = #{cigarAttr},
+			created = #{created},
+			inspect_num = #{inspectNum},
+			return_num = #{returnNum},
+			format=#{format}
+		WHERE
+			id = #{id}
+	</update>
+	<!-- 删除 -->
+	<delete id="removeByIds" parameterType="String">
+		DELETE FROM
+			<include refid="tableNameSql" />
+		WHERE
+			id IN
+		<foreach collection="ids" item = "ids" open="(" separator="," close=")">#{ ids}</foreach> 	
+	</delete>
+	<!-- 根据案件id删除 -->
+	<delete id="removeByCaseId" parameterType="String">
+		DELETE FROM
+			<include refid="tableNameSql" />
+		WHERE case_id = #{caseId}
+	</delete>
+	
+	<!-- 统计条件 -->
+	<sql id="statsCondition">
+		 	AND b.remove_statue = 0
+			AND b.id != 1
+		<if test="startDate != null and startDate != ''">
+			AND b.created &gt;= #{startDate}
+		</if>
+		<if test="endDate != null and endDate != ''">
+			AND b.created &lt;= #{endDate}
+		</if>
+		<if test="orgId != null and orgId.size>0">
+			AND b.creat_org IN <foreach collection="orgId" item = "orgId" open="(" separator="," close=")">#{orgId}</foreach> 	  
+		</if>
+		<if test="cigarName != null and cigarName != ''">
+			AND a.name = #{cigarName}
+		</if>
+	</sql>
+	<!-- 根据卷烟品牌查询假非私数量  -->
+	<select id="findCigarName" parameterType="String" resultType="hashMap">
+		SELECT
+			a.name,
+			inspect_result,
+			SUM(total_value) AS totalValue,
+			COUNT(a.id) AS cigarCount
+		FROM
+			<include refid="tableNameSql" /> a
+			LEFT JOIN b_case_info b ON a.case_id = b.id
+		WHERE 1=1
+			<include refid="statsCondition" />
+			GROUP BY a.name, a.inspect_result
+	</select>
+	
+	<!-- 罚款总值  -->
+	<select id="findInspectResult" parameterType="String" resultType="hashMap">
+		SELECT 
+			b.regi_no AS regiNo,
+			COUNT(a.id) AS count,
+			inspect_result AS inspectResult,
+			IF(SUM(a.total_value) IS NULL, 0, SUM(a.total_value)) AS totalValue,
+			IF(b.fake_range IS NULL, 0, b.fake_range) AS fakeRange,
+			IF(b.non_range IS NULL, 0, b.non_range) AS nonRange
+		FROM 
+			<include refid="tableNameSql" /> a
+			LEFT JOIN b_case_info b ON a.case_id = b.id
+		WHERE 1=1
+			<include refid="statsCondition" />
+		GROUP BY a.case_id, a.inspect_result;
+	</select>
+	
+	<!-- 假非私数量 -->
+	<select id="findInspectResult2" parameterType="String" resultType="hashMap">
+		SELECT 
+			SUM(a.number) AS number,
+			a.inspect_result AS inspectResult, 
+			SUM(a.total_value) AS totalValue
+		FROM 
+			<include refid="tableNameSql" /> a
+			LEFT JOIN b_case_info b ON a.case_id = b.id
+		WHERE 1=1
+			<include refid="statsCondition" />
+		GROUP BY a.inspect_result
+	</select>
+	
+	<!-- 按时间分段查询假非私数量 -->
+	<select id="findCompareByResult" parameterType="HashMap" resultType="HashMap">
+		SELECT
+			<foreach collection="dateList" item="date" separator=",">
+				SUM(
+					CASE WHEN b.crime_date &gt;= #{date.startDate} AND b.crime_date &lt; #{date.endDate} THEN 1 ELSE 0 END
+				) AS #{date.endDate}
+			</foreach>
+		FROM 
+			<include refid="tableNameSql" /> a
+		LEFT JOIN b_case_info b ON a.case_id = b.id
+		WHERE 1=1
+				AND b.id != 1
+				AND a.remove_statue = 0
+			<if test="result !=null and result !=''">
+				AND inspect_result = #{result}
+			</if>
+			<if test="cigarName !=null and cigarName !=''">
+				AND cigar_name = #{cigarName}
+			</if>
+			<if test="orgId != null and orgId.size>0">
+				AND b.creat_org IN <foreach collection="orgId" item = "orgId" open="(" separator="," close=")">#{orgId}</foreach> 
+			</if>
+	</select>
+</mapper>

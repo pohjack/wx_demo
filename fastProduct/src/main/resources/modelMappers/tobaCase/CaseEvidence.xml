@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.frame.tobaCase.entity.CaseEvidence">
+	<resultMap id="BaseResultMap" type="com.frame.tobaCase.entity.CaseEvidence">
+		<id column="id" property="id" />
+		<result column="case_info_id" property="caseInfoId" />
+		<result column="evid_type" property="evidType" />
+		<result column="evid_no" property="evidNo" />
+		<result column="evid_name" property="evidName" />
+	</resultMap>
+	<!-- 表名 -->
+	<sql id="tableNameSql">
+		b_case_evidence
+	</sql>
+	<sql id="Base_Column_List">
+		id, case_info_id, evid_type, evid_no, evid_name
+	</sql>
+	<select id="countByCaseId" parameterType="String" resultType="hashMap">
+		SELECT COUNT(evid_type) AS count , evid_type FROM
+		<include refid="tableNameSql" />
+		WHERE case_info_id = #{id} GROUP BY evid_type
+	</select>
+	<select id="findByCaseInfoId" parameterType="HashMap" resultMap="BaseResultMap">
+		SELECT <include refid="Base_Column_List" />  FROM
+		<include refid="tableNameSql" />
+		WHERE case_info_id = #{caseId} AND evid_type= #{index}
+	</select>
+	<select id="countEvidence" parameterType="string" resultType="java.util.LinkedHashMap">
+		SELECT evid_no AS evidTypeTotal,evid_name FROM
+		<include refid="tableNameSql" />
+		WHERE case_info_id = #{caseId} ORDER BY evid_type
+	</select>
+		<!-- 保存 -->
+	<insert id="save" parameterType="com.frame.tobaCase.entity.CaseEvidence">
+		INSERT INTO
+			<include refid="tableNameSql" />
+		(<include refid="Base_Column_List" />)
+		VALUES (
+			#{id},
+			#{caseInfoId},
+			#{evidType},
+			#{evidNo},
+			#{evidName}
+		)
+	</insert>
+	
+		<!-- 修改案件证据 -->
+	<update id="update" parameterType="com.frame.tobaCase.entity.CaseInfo">
+		UPDATE
+		<include refid="tableNameSql" />
+		SET
+			case_info_id =#{caseInfoId},
+			evid_type=#{evidType},
+			evid_no=#{evidNo},
+			evid_name =#{evidName}
+		WHERE
+		id = #{id}
+	</update>
+	
+		<!-- 删除 -->
+	<delete id="removeByIds" parameterType="java.lang.String">
+		DELETE FROM
+		<include refid="tableNameSql" />
+		WHERE  id=<foreach collection="ids" item = "ids" open="(" separator="," close=")">#{ids}</foreach>
+	</delete>
+	<!-- 删除委托人以及委托书证据 -->
+	<delete id="deleteByArgs" parameterType="java.lang.String">  
+		DELETE FROM
+		<include refid="tableNameSql" />
+		WHERE  case_info_id=#{caseInfoId} AND (evid_type=3 OR evid_type=4)
+	</delete>
+</mapper>

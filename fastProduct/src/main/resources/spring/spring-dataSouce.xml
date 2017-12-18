@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+						   http://www.springframework.org/schema/beans/spring-beans-4.0.xsd 
+						   http://www.springframework.org/schema/context 
+	 					   http://www.springframework.org/schema/context/spring-context-4.0.xsd 
+						   http://www.springframework.org/schema/mvc 
+						   http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+						   http://www.springframework.org/schema/tx 
+                           http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+						   http://www.springframework.org/schema/aop
+						   http://www.springframework.org/schema/aop/spring-aop-4.0.xsd ">
+	<!-- 这里扫描的时候将Controller排除 -->
+	<context:component-scan base-package="com.frame.sys,com.frame.core">
+		<context:exclude-filter type="annotation"
+			expression="org.springframework.stereotype.Controller" />
+	</context:component-scan>
+	<!--通过注解方式构建上下文 -->
+	<context:annotation-config />
+	<!-- 注解方式配置事物 -->
+	<tx:annotation-driven />
+	<context:property-placeholder location="classpath:jdbc.properties,classpath:sysconfig.properties" />
+
+	<!-- 主数据库c3p0数据源配置 -->
+	<bean id="baseDataSource" class="com.alibaba.druid.pool.DruidDataSource"
+		destroy-method="close">
+		<property name="initialSize" value="5" />
+		<property name="maxActive" value="100" />
+		<property name="minIdle" value="10" />
+		<property name="maxWait" value="60000" />
+		<property name="validationQuery" value="SELECT 'x'" />
+		<property name="testOnBorrow" value="true" />
+		<property name="testOnReturn" value="true" />
+		<property name="testWhileIdle" value="true" />
+		<property name="timeBetweenEvictionRunsMillis" value="60000" />
+		<property name="minEvictableIdleTimeMillis" value="300000" />
+		<property name="removeAbandoned" value="true" />
+		<property name="removeAbandonedTimeout" value="1800" />
+		<property name="logAbandoned" value="true" />
+		<property name="filters" value="mergeStat" />
+	</bean>
+	<!-- 主库 -->
+	<bean name="master-dataSource" parent="baseDataSource"
+		init-method="init">
+		<property name="url" value="${master.jdbc.url}" />
+		<property name="username" value="${master.jdbc.user}" />
+		<property name="password" value="${master.jdbc.password}" />
+	</bean>
+	
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="master-dataSource" />
+		<property name="configLocation" value="classpath:spring/mybatis-config.xml" />
+		<property name="mapperLocations" value="classpath:modelMappers/**/*.xml" />
+
+	</bean>
+
+	<!-- myBatis文件 -->
+	<bean id="mapperScannerConfig" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.frame.*" />
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+	</bean>
+	
+			<!-- 文件上传 -->
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">  
+		<property name="defaultEncoding" value="UTF-8" /> 
+     <property name="maxUploadSize" value="104857600"/>  
+       <property name="maxInMemorySize" value="4096"/>  
+    </bean> 
+	
+</beans>

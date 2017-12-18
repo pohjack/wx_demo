@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.frame.tobaCase.entity.OfficerInfo">
+	<resultMap id="BaseResultMap" type="com.frame.tobaCase.entity.OfficerInfo">
+		<id column="id" property="id" />
+		<result column="code" property="code" />
+		<result column="name" property="name" />
+		<result column="card_id" property="cardId" />
+		<result column="gender" property="gender" />
+		<result column="phone" property="phone" />
+	</resultMap>
+	<!-- 表名 -->
+	<sql id="tableNameSql">
+		s_officer_info
+	</sql>
+	<sql id="Base_Column_List">
+		id,code,name,card_id,gender,phone
+	</sql>
+
+	<select id="findByCardId" parameterType="string" resultMap="BaseResultMap">
+		SELECT <include refid="Base_Column_List" />
+		FROM <include refid="tableNameSql" />
+		WHERE card_id = #{id}
+	</select>
+</mapper>

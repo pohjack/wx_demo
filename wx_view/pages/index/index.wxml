@@ -37,6 +37,8 @@
 
   <!--底部商品展示 -->
   <view class="content">
-    
+    <view>
+    <image></image>
+    </view>
   </view>
 </view>

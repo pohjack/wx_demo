@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.frame.tobaCase.entity.Law">
+	<resultMap id="BaseResultMap" type="com.frame.tobaCase.entity.Law">
+		<id column="id" property="id" />
+		<result column="case_cause_no" property="caseCauseNo" />
+		<result column="case_cause_cont" property="caseCauseCont" />
+		<result column="break_law" property="breakLaw" />
+		<result column="punish_law" property="punishLaw" />
+		<result column="authen_res" property="authenRes" />
+		<result column="creator" property="creator" />
+		<result column="created" property="created" />
+		<result column="updator" property="updator" />
+		<result column="updated" property="updated" />
+	</resultMap>
+	<!-- 表名 -->
+	<sql id="tableNameSql">
+		s_law
+	</sql>
+	<sql id="Base_Column_List">
+		id, case_cause_no, case_cause_cont, break_law, punish_law,authen_res,creator,created,updator,updated
+	</sql>
+	<select id="findAll" parameterType="String" resultMap="BaseResultMap">
+		SELECT <include refid="Base_Column_List" />
+		FROM <include refid="tableNameSql" />
+	</select>
+	
+	<select id="findById" parameterType="String" resultMap="BaseResultMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM
+		<include refid="tableNameSql" />
+		WHERE id=#{id}
+	</select>
+	
+	<sql id="condition">  <!-- 公共条件 -->
+		WHERE 1=1
+		<if test="condition.caseCauseNo != null and condition.caseCauseNo != ''"> AND case_cause_no LIKE CONCAT(CONCAT('%', #{condition.caseCauseNo}),'%')</if>
+		<if test="condition.aseCauseCont != null and condition.aseCauseCont != ''"> AND case_cause_cont LIKE CONCAT(CONCAT('%', #{condition.caseCauseCont}),'%')</if>
+		<if test="condition.authenRes != null and condition.authenRes != ''"> AND authen_res CONCAT(CONCAT('%', #{condition.authenRes}),'%')</if>
+		<if test="condition.punishLaw != null and condition.punishLaw != ''"> AND punish_law CONCAT(CONCAT('%', #{condition.punishLaw}),'%')</if>
+	</sql>
+	<select id="findByPage" resultType="hashMap" parameterType="com.frame.core.commons.result.DateTablesResult">
+		SELECT <include refid="Base_Column_List" /> FROM
+		<include refid="tableNameSql" /> 
+		<include refid="condition" />
+		GROUP BY id 
+		<if test="condition.iSortCol_0==1">
+			ORDER BY case_cause_no ${condition.sSortDir_0}
+		</if>
+		<if test="condition.iSortCol_0==2">
+			ORDER BY case_cause_cont ${condition.sSortDir_0}
+		</if>
+		<if test="condition.iSortCol_0==3">
+			ORDER BY authen_res ${condition.sSortDir_0}
+		</if>
+		<if test="condition.iSortCol_0==4">
+			ORDER BY break_law ${condition.sSortDir_0}
+		</if>
+		<if test="condition.iSortCol_0==5">
+			ORDER BY punish_law ${condition.sSortDir_0}
+		</if>
+		 LIMIT ${start},${length}
+	</select>
+	<select id="findAllTotal" parameterType="com.frame.core.commons.result.DateTablesResult" resultType="int">
+		SELECT count(id) FROM 
+		<include refid="tableNameSql" />
+		<include refid="condition" />
+	</select>
+	<!-- 删除 -->
+	<delete id="removeByIds" parameterType="String">
+		DELETE FROM <include refid="tableNameSql" />
+		WHERE id IN
+		<foreach collection="ids" item = "ids" open="(" separator="," close=")">#{ ids}</foreach> 	
+	</delete>
+	
+		<!-- 新增 -->
+	<insert id="save" parameterType="com.frame.tobaCase.entity.Law">
+		INSERT INTO
+		<include refid="tableNameSql" />
+		(
+		<include refid="Base_Column_List" />
+		)
+		VALUES (
+		#{id},#{caseCauseNo},#{caseCauseCont},#{breakLaw},#{punishLaw},#{authenRes},#{creator},#{created},#{updator},#{updated}
+		)
+	</insert>
+	<!-- 根据案由编号查询对象 -->
+	<select id="findByLawNum" parameterType="String" resultMap="BaseResultMap">
+		SELECT <include refid="Base_Column_List"/> FROM 
+		<include refid="tableNameSql" />
+		WHERE  case_cause_no=#{lawNum}
+	</select>
+	
+	<!-- 修改 -->
+	<update id="update" parameterType="com.frame.tobaCase.entity.CaseInfoSlave">
+		UPDATE
+			<include refid="tableNameSql" />
+		SET
+			case_cause_no=#{caseCauseNo},
+			case_cause_cont=#{caseCauseCont},
+			break_law=#{breakLaw},
+			punish_law=#{punishLaw},
+			authen_res=#{authenRes},
+			creator=#{creator},
+			created=#{created},
+			updator=#{updator},
+			updated=#{updated}
+		WHERE
+			master_id = #{masterId}
+	</update>
+</mapper>

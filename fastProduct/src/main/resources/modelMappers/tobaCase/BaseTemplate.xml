@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.frame.tobaCase.entity.BaseTemplate">
+	<resultMap id="BaseResultMap" type="com.frame.tobaCase.entity.BaseTemplate">
+		<id column="id" property="id" />
+		<result column="name" property="name" />
+		<result column="code" property="code" />
+		<result column="content" property="content" />
+		<result column="description" property="description" />
+		<result column="sort" property="sort" />
+		<result column="creator" property="creator" />
+		<result column="created" property="created" />
+		<result column="updated" property="updated" />
+		<result column="updator" property="updator" />
+		<result column="status" property="status" />
+		<result column="remove_statue" property="removeStatue" />
+	</resultMap>
+	<!-- 表名 -->
+	<sql id="tableNameSql">
+		b_base_temp
+	</sql>
+	<sql id="Base_Column_List">
+		id,name,content,code,description,sort,creator,created,updator,updated,status,remove_statue
+	</sql>
+	<sql id="Base_Column_List1">
+		b.id,b.name,b.content,b.code,b.description,b.sort,b.creator,b.created,b.updator,b.updated,b.status,b.remove_statue
+	</sql>
+	<select id="findBaseByDocId" parameterType="String" resultMap="BaseResultMap">
+		SELECT <include refid="Base_Column_List1"/> FROM b_docs_temp_slave a 
+		LEFT JOIN <include refid="tableNameSql"/> b ON a.base_temp_id = b.id
+		WHERE a.master_id = #{modelNo} ORDER BY a.sort ASC
+	</select>
+	<select id="findBaseInfo" parameterType="hashMap" resultType="hashMap">
+		SELECT a.id AS dId,b.id AS bId,b.name FROM b_docs_temp_slave a 
+		LEFT JOIN <include refid="tableNameSql"/> b ON a.base_temp_id = b.id
+		WHERE a.master_id = #{modelNo} AND a.type=#{tag} ORDER BY a.sort ASC
+	</select>
+	<select id="findById" parameterType="String" resultMap="BaseResultMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM
+		<include refid="tableNameSql" />
+		WHERE id=#{id}
+	</select>
+	<!-- 保存 -->
+	<insert id="save" parameterType="com.frame.tobaCase.entity.BaseTemplate">
+		INSERT INTO
+			<include refid="tableNameSql" />
+		(<include refid="Base_Column_List" />)
+		VALUES (
+			#{id},
+			#{name},
+			#{content},
+			#{code},
+			#{description},
+			#{sort},
+			#{creator},
+			#{created},
+			#{updator},
+			#{updated},
+			#{status},
+			#{removeStatue}
+		)
+	</insert>
+	<!-- 修改 -->
+	<update id="update" parameterType="com.frame.tobaCase.entity.BaseTemplate">
+		UPDATE
+			<include refid="tableNameSql" />
+		SET
+			name = #{name},
+			<!-- code = #{code},
+			description = #{description}, -->
+			<!-- sort = #{sort}, -->
+			content = #{content},
+			updator = #{updator},
+			updated = #{updated}
+			<!-- status = #{status} -->
+		WHERE
+			id = #{id}
+	</update>
+	<!-- 逻辑删除 -->
+	<delete id="removeByIds" parameterType="String">
+		UPDATE 
+			<include refid="tableNameSql" />
+		SET
+			remove_statue = 1
+		WHERE
+			id = #{id}
+	</delete>
+	<select id="findAll" resultMap="BaseResultMap">
+		SELECT <include refid="Base_Column_List" />
+		FROM <include refid="tableNameSql" />
+		ORDER BY name
+	</select>
+</mapper>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.frame.tobaCase.entity.CaseSend">
+	<resultMap id="BaseResultMap" type="com.frame.tobaCase.entity.CaseSend">
+		<id column="id" property="id" />
+		<result column="case_id" property="caseId" />
+		<result column="code" property="code" />
+		<result column="place" property="place" />
+		<result column="way" property="way" />
+		<result column="wenhao" property="wenhao" />
+	</resultMap>
+	<!-- 表名 -->
+	<sql id="tableNameSql">
+		b_case_send
+	</sql>
+	<sql id="Base_Column_List">
+		id,case_id,code,place,way,wenhao
+	</sql>
+
+	<select id="findByCaseIdAndCode" parameterType="String" resultMap="BaseResultMap">
+		SELECT <include refid="Base_Column_List" /> FROM <include refid="tableNameSql" />
+		WHERE case_id = #{caseId} AND code = #{code}
+		
+	</select>
+	
+	<!-- 新增 -->
+	<insert id="save" parameterType="com.frame.tobaCase.entity.CaseSend">
+		INSERT INTO
+			<include refid="tableNameSql" />
+		(<include refid="Base_Column_List" />)
+		VALUES (
+			#{id},
+			#{caseId},
+			#{code},
+			#{place},
+			#{way},
+			#{wenhao}
+		)
+	</insert>
+	<insert id="saveAll" parameterType="com.frame.tobaCase.entity.CaseSend">
+		INSERT INTO
+			<include refid="tableNameSql" />
+		(<include refid="Base_Column_List" />)
+		VALUES  
+		<foreach collection="list" item = "caseSend" separator=",">
+			(#{caseSend.id}, #{caseSend.caseId}, #{caseSend.code}, #{caseSend.place},#{caseSend.way},#{caseSend.wenhao})
+		 </foreach>
+	</insert>
+	<!-- 修改 -->
+	<update id="update" parameterType="com.frame.tobaCase.entity.CaseSend">
+		UPDATE
+			<include refid="tableNameSql" />
+		SET
+			case_id=#{caseId},
+			code = #{code},
+			place=#{place},
+			way = #{way},
+			wenhao=#{wenhao}
+		WHERE
+			id = #{id}
+	</update>
+	<!-- 删除 -->
+	<delete id="removeByIds" parameterType="String">
+		DELETE FROM
+			<include refid="tableNameSql" />
+		WHERE
+			id IN
+		<foreach collection="ids" item = "ids" open="(" separator="," close=")">#{ ids}</foreach> 	
+	</delete>
+	
+	
+	
+</mapper>

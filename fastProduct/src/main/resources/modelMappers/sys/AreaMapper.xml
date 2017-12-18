@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.frame.sys.entity.Area">
+	<resultMap id="BaseResultMap" type="com.frame.sys.entity.Area">
+		<id column="id" property="id" />
+		<result column="code" property="code" />
+		<result column="name" property="name" />
+		<result column="pid" property="pid" />
+	</resultMap>
+	
+	<!-- 表名 -->
+	<sql id="tableNameSql">
+		s_area
+	</sql>
+	<sql id="Base_Column_List">
+		id, 
+		code,
+		name,
+		pid
+	</sql>
+	<select id="findAll" resultMap="BaseResultMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM
+		<include refid="tableNameSql" />
+	</select>
+	<!--  查询树结构数据 -->
+	<select id="findTree" resultType="com.frame.core.entity.JsTreeNode">
+		SELECT 
+			id,
+			pid,
+			name
+		FROM 
+			<include refid="tableNameSql" />
+	</select>
+	
+	<select id="findById" parameterType="String" resultType="com.frame.sys.entity.Area">
+		SELECT
+			<include refid="Base_Column_List" />
+		FROM 
+			<include refid="tableNameSql" />
+		WHERE
+			id=#{id}
+	</select>
+	
+	
+	<!-- 新增区域-->
+	<insert id="save" parameterType="com.frame.sys.entity.Area">
+		INSERT INTO 
+			<include refid="tableNameSql" />
+		VALUES
+			(#{id},#{code},#{name},#{pid})
+	</insert>
+	<!-- 修改区域 -->
+	<update id="update" parameterType="com.frame.sys.entity.Area">
+		UPDATE
+			<include refid="tableNameSql" />
+		SET
+			
+			name=#{name},
+			pid=#{pid}
+		WHERE 
+			id=#{id}
+	</update>
+	<!-- 删除区域 -->
+	<update id="removeByIds" parameterType="HashMap">
+		DELETE FROM <include refid="tableNameSql" />
+		WHERE id IN
+		<foreach collection="ids" item="id" open="(" separator="," close=")">#{ id}</foreach>
+	</update>
+	
+	
+<!-- 	查询孩子节点
+	<select id="findTreeChildren" resultType="com.frame.core.entity.JsTreeNode">
+		SELECT 
+			id,
+			pid,
+			name
+		FROM 
+			<include refid="tableNameSql" />
+	</select>
+		WHERE
+			pid=#{id}
+	</select>  -->
+
+	
+	
+</mapper>

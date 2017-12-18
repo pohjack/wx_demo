@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.frame.sys.entity.Role">
+	<resultMap id="BaseResultMap" type="com.frame.sys.entity.Role">
+		<id column="id" property="id" />
+		<result column="role_name" property="name" />
+		<result column="role_code" property="code" />
+		<result column="role_description" property="description" />
+		<result column="creator" property="creator" />
+		<result column="created" property="created" />
+		<result column="updator" property="updator" />
+		<result column="remove_statue" property="removeStatue" />
+		<result column="sort" property="sort" />
+		<result column="remark" property="remark" />
+		<result column="updated" property="updated" />
+	</resultMap>
+
+	<!-- 表名 -->
+	<sql id="tableNameSql">
+		s_role
+	</sql>
+	<sql id="roleResourceTableNameSql">
+		s_role_resource
+	</sql>
+	<sql id="resourceTableNameSql">
+		s_resource
+	</sql>
+	<sql id="Base_Column_List">
+		id,role_code,role_name,role_description,creator,created,updator,updated,sort,status,remove_statue,remark
+	</sql>
+	
+	<!-- 查询已经启用和未逻辑删除所有角色 -->
+	<select id ="findAll" resultMap="BaseResultMap">
+		SELECT 
+		<include refid="Base_Column_List" />
+		FROM
+		<include refid="tableNameSql" />
+		WHERE status=1 AND remove_statue=0
+	</select>
+	
+	<sql id="condition">
+		<if test="condition.state != null and condition.state != ''"> AND a.status = #{condition.state}</if>
+		<!-- <if test="condition.startTime != null and condition.startTime != ''">起始时间
+			AND a.updated &gt;= #{condition.startTime}
+		</if>
+		<if test="condition.endTime != null and condition.endTime != ''">结束时间
+			AND a.updated &lt;= #{condition.endTime}
+		</if> -->
+		<if test="condition.roleCode != null and  condition.roleCode != '' ">
+			AND role_code LIKE CONCAT(CONCAT('%', #{condition.roleCode}),'%')
+		</if>
+		<if test="condition.roleName != null and  condition.roleName != '' ">
+			AND role_name LIKE CONCAT(CONCAT('%', #{condition.roleName}),'%')
+		</if>
+	</sql>
+	
+	<!-- 分页查询 -->
+	<select id="findByPage" parameterType="com.frame.core.commons.result.DateTablesResult" resultType="Map">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM
+		<include refid="tableNameSql" />
+		WHERE remove_statue=0 AND id != '1'		
+		<include refid="condition" />
+                <if test="condition.iSortCol_0==3">  
+                ORDER BY  login_name  ${condition.sSortDir_0}
+				</if>
+		limit ${start},${length} 
+	</select>
+	<!-- 查询总数 -->
+	<select id="findAllTotal" parameterType="com.frame.core.commons.result.DateTablesResult" resultType="int">
+	    SELECT count(id) from  <include refid="tableNameSql" />
+	    WHERE remove_statue=0 AND id != '1'
+		<include refid="condition" />
+	</select>
+	
+	<update id = "removeByIds" parameterType = "String">  
+       UPDATE <include refid="tableNameSql" /> 
+		SET 
+			remove_statue=1,
+			updator = #{updator},
+			updated = #{updated}
+		WHERE id IN
+    		<foreach collection="ids" item = "ids" open="(" separator="," close=")">#{ ids}</foreach>  
+	</update>
+	
+	<insert id="save" parameterType="com.frame.sys.entity.Role">
+		INSERT INTO <include refid="tableNameSql" /> (<include refid="Base_Column_List" />)
+		VALUES (
+			#{id},
+			#{code},
+			#{name},
+			#{description},
+			#{id},
+			#{created},
+			#{id},
+			#{updated},
+			#{sort},
+			#{status},
+			#{removeStatue},
+			#{remark}
+		)
+	</insert>
+	
+	<update id="update" parameterType="com.frame.sys.entity.Role">
+		UPDATE <include refid="tableNameSql" /> 
+		SET 
+		role_name=#{name},
+		role_code=#{code},
+		status=#{status},
+		role_description=#{description},
+		updator=#{updator}
+		WHERE id=#{id}
+	</update>
+	
+	<select id="findById" parameterType="String" resultMap="BaseResultMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM
+		<include refid="tableNameSql" />
+		WHERE id=#{id}
+	</select>
+	
+	<!-- 根据用户id获取id -->
+	<select id="findRoleIdByUserId" resultMap="BaseResultMap"
+		parameterType="java.lang.String">
+		SELECT
+		role_id AS id
+		FROM
+		s_user_role
+		WHERE user_id =
+		#{userId}
+	</select>
+	<!-- 根据角色id查找角色所属资源 -->
+	<select id="findResourceByRoleId" resultType="java.util.HashMap"
+		parameterType="java.lang.String">
+		SELECT
+		e.role_id AS roleId,
+		IFNULL(s.permission,'') AS permission,
+		s.id AS menuId,
+		s.res_type AS menuType
+		FROM
+		<include refid="roleResourceTableNameSql" />
+		e,
+		<include refid="resourceTableNameSql" />
+		s WHERE e.res_id = s.id AND
+		e.role_id = #{id}
+	</select>
+	
+	<!-- 禁用启用角色 -->
+	<update id="changeState" parameterType="HashMap">
+		UPDATE <include refid="tableNameSql" /> 
+		SET 
+			status=#{status},
+			updator = #{updator},
+			updated = #{updated}
+		WHERE 
+			id=#{id}
+	</update>
+	<!-- 查询角色名是否存在 -->
+	<select id="isSameName" resultType="Integer">
+		SELECT COUNT(id)
+		FROM <include refid="tableNameSql" />
+		WHERE 
+			role_name = #{roleName}
+			AND remove_statue=0
+	</select>
+</mapper>
