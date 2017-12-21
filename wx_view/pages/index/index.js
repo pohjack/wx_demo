@@ -35,7 +35,7 @@ Page({
       {
         img: "/images/classify/classify1.png",
         name: "美食",
-        backgroundColor: "lightgray"
+        backgroundColor: "#EE7600"
       }, {
         img: "/images/classify/classify2.png",
         name: "生活用品",
@@ -52,11 +52,11 @@ Page({
       {
         img: "/images/classify/classify1.png",
         name: "美食",
-        backgroundColor: "lightgray"
+        backgroundColor: "#9370DB"
       }, {
         img: "/images/classify/classify2.png",
         name: "生活用品",
-        backgroundColor: "lightblue"
+        backgroundColor: "#63B8FF"
       }, {
         img: "/images/classify/classify3.png",
         name: "饮料",
