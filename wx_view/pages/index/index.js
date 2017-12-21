@@ -4,6 +4,32 @@ const app = getApp()
 
 Page({
   data: {
+    //底部商品信息
+    productInfo: [{
+      productImage: "/images/content/product/item01.png",
+      productName: "商品名称",
+      starImage: "/images/content/star_3.5.png",
+      saleAmount: "100",
+      price: "10.0"
+    }, {
+      productImage: "/images/content/product/item01.png",
+      productName: "商品名称",
+      starImage: "/images/content/star_2.5.png",
+      saleAmount: "156",
+      price: "10.0"
+    }, {
+      productImage: "/images/content/product/item01.png",
+      productName: "商品名称",
+      starImage: "/images/content/star_1.5.png",
+      saleAmount: "200",
+      price: "10.0"
+    }, {
+      productImage: "/images/content/product/item01.png",
+      productName: "商品名称",
+      starImage: "/images/content/star_3.5.png",
+      saleAmount: "100",
+      price: "10.0"
+    }],
     // 分类数据
     classifyInfo: [
       {
@@ -40,7 +66,7 @@ Page({
         name: "面包",
         backgroundColor: "lightpink"
       }
-      
+
     ]
   },
   //事件处理函数
