@@ -29,6 +29,30 @@ Page({
       starImage: "/images/content/star_3.5.png",
       saleAmount: "100",
       price: "10.0"
+    }, {
+      productImage: "/images/content/product/item01.png",
+      productName: "商品名称",
+      starImage: "/images/content/star_3.5.png",
+      saleAmount: "100",
+      price: "10.0"
+    }, {
+      productImage: "/images/content/product/item01.png",
+      productName: "商品名称",
+      starImage: "/images/content/star_2.5.png",
+      saleAmount: "156",
+      price: "10.0"
+    }, {
+      productImage: "/images/content/product/item01.png",
+      productName: "商品名称",
+      starImage: "/images/content/star_1.5.png",
+      saleAmount: "200",
+      price: "10.0"
+    }, {
+      productImage: "/images/content/product/item01.png",
+      productName: "商品名称",
+      starImage: "/images/content/star_3.5.png",
+      saleAmount: "100",
+      price: "10.0"
     }],
     // 分类数据
     classifyInfo: [

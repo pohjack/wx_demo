@@ -14,7 +14,9 @@
   <!-- 中部分类 -->
   <view class="classify">
     <view wx:for="{{classifyInfo}}" class="classify_item">
-      <image src="{{item.img}}" style="background-color:{{item.backgroundColor}}"></image>
+      <view style="background-color:{{item.backgroundColor}}">
+      <image src="{{item.img}}"></image>
+      </view>
       <text>{{item.name}}</text>
     </view>
   </view>
