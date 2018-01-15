@@ -1,2 +1,104 @@
-<!--pages/cart/cart.wxml-->
-<text>pages/cart/cart.wxml</text>
+<view class='main-contanier'>
+  <!--购物车无商品  -->
+  <view wx:if="{{shopCartIsEmpty}}" class='without-content'>
+    <view class='top'>
+      <image src='/images/content/cart_00.png'></image>
+      <text>购物车还是空的，您可以</text>
+      <text class='red-button'>再逛逛</text>
+    </view>
+    <view class='bottom'>
+      <!--分割块  -->
+      <view class="slipt"></view>
+      <!-- 中部过滤、筛选条件 -->
+      <view class="filter">
+        <view class="filter_header">
+          <text>热卖商品</text>
+        </view>
+        <!--热卖商品内容  -->
+        <view wx:for="{{productInfo}}" class="content_container">
+          <view class="content">
+            <view class="product_image">
+              <image src="{{item.productImage}}" mode="aspectFit"></image>
+            </view>
+            <view class="content_right">
+              <view class="product_name">
+                <text>{{item.productName}}</text>
+              </view>
+              <view class="content_center">
+                <view class="star">
+                  <image src="{{item.starImage}}" mode="aspectFit"></image>
+                  <text>月售{{item.saleAmount}}</text>
+                </view>
+                <view class="price">
+                  <text class="fontRed">￥{{item.price}}</text>
+                </view>
+              </view>
+            </view>
+            <view class="shopCart">
+              <image src="/images/content/cart_00.png" mode="aspectFit"></image>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!--购物车有商品  -->
+  <view wx:if="!{{shopCartIsEmpty}}" class='with-content'>
+
+    <view class='shopName'>
+      <image src="/images/shopcart/shop.png"></image>
+      <text>广东省广州市**有限公司</text>
+    </view>
+
+    <scroll-view class='shopcart-scroll' scroll-y>
+      <view wx:for="{{shopCartContent}}">
+        <view class='shop-cart-item'>
+          <view class='left-selector'>
+            <view class='dis-selected'></view>
+            <icon type='success' size='20' color='red' style='display:none'></icon>
+          </view>
+          <view class='center-image'>
+            <image src="{{item.productImage}}"></image>
+          </view>
+          <view class='right-desc'>
+            <view class='cart-product-name' style='height:40rpx;'>
+              <text>{{item.productName}}</text>
+            </view>
+            <view class='cart-product-desc' style='height:40rpx;'>
+              <text>{{item.productDesc}}</text>
+            </view>
+            <view class='cart-price'>
+              <view class="price ">
+                <text class="fontRed ">￥{{item.price}}</text>
+              </view>
+              <view class="cart-amount">
+                <image src='/images/shopcart/remove.png'></image>
+                <input type='number' value='999' maxlength='3'></input>
+                <image src='/images/shopcart/add.png'></image>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+
+    <!--底部结算栏  -->
+    <view class='bottom-count'>
+      <view class='left-selector'>
+        <view class='dis-selected' style='display:none'></view>
+        <icon type='success' size='20' color='red'></icon>
+      </view>
+      <view class='selectAll'>
+        <text style="font-size:35rpx">全选</text>
+      </view>
+      <view class='total-count'>
+        <text style="font-size:35rpx">合计:</text>
+        <text class="price">￥299343.4</text>
+      </view>
+      <view class='pay-button'>
+        <text>结算</text>
+      </view>
+    </view>
+  </view>
+</view>
